@@ -73,15 +73,6 @@ mesh = SubResource("BoxMesh_21vbi")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall1/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
-[node name="Wall2" type="MeshInstance3D" parent="."]
-transform = Transform3D(5.94879, 0, 0, 0, 3.4596, -2.45875, 0, 2.04332, 4.163, 4.9832, -0.723386, -2.24394)
-mesh = SubResource("BoxMesh_21vbi")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Wall2"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall2/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_eiqgx")
-
 [node name="UserInterface" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
@@ -94,3 +85,7 @@ offset_right = 40.0
 offset_bottom = 23.0
 text = "Deez nuts"
 script = ExtResource("2_5rbeq")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.632367, 0.774669, 0, -0.774669, 0.632367, 0, 0, -3.27715)
+size = Vector3(5, 8, 5.3241)

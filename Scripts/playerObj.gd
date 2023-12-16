@@ -4,16 +4,23 @@ extends CharacterBody3D
 
 #Player States
 
-var playerState
-var playerLegState
+var playerTorsoState = torsoIDLE
+var playerLegState = legIDLE
+
+#Head States
+enum {
+	torsoIDLE,
+	torsoWEAPON,
+	torsoCAST,
+	torsoHOLDITEM,
+	torsoHOLDBIG,
+	torsoSTUN
+}
 
 enum {
-	headIDLE,
-	headWEAPON,
-	headCAST,
-	headHOLDITEM,
-	headHOLDBIG,
-	headSTUN
+	legIDLE,
+	legRUN,
+	legSPRINT
 }
 
 #Player Variables
@@ -79,8 +86,8 @@ func _physics_process(delta):
 	playerViewCamera.transform.origin = _headbob(tbob)
 
 	# FOV
-	var velocity_clamped = clamp(velocity.length(), 0.5, (playerSpeed * playerSprint) * 2)
-	var target_fov = fovBase + fovChange * velocity_clamped
+	#var velocity_clamped = clamp(velocity.length(), 0.5, (playerSpeed * playerSprint) * 2)
+	var target_fov = fovBase + fovChange# * velocity_clamped
 	playerViewCamera.fov = lerp(playerViewCamera.fov, target_fov, delta * 8.0)
 
 	move_and_slide()
