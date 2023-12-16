@@ -44,8 +44,9 @@ var gravity = 9.8
 #var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 #Default Gravity set in the game.
 
+#Grabs the positions of the playerView object and Camera3D object.
 @onready var playerView = $playerView
-@onready var playerViewCamera = $playerView/Camera3D
+@onready var playerViewCamera = $playerView/playerCamera
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
