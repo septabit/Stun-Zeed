@@ -4,8 +4,8 @@ extends CharacterBody3D
 
 #Player States
 
-@export var playerTorsoState = torsoIDLE
-@export var playerLegState = legIDLE
+var playerTorsoState = torsoIDLE
+var playerLegState = legIDLE
 
 #Head States
 enum {
@@ -65,7 +65,10 @@ func _physics_process(delta):
 		velocity.y -= gravity * delta
 
 	# Handle jump.
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+	if Input.is_action_just_pressed("Jump") and is_on_floor():
+		velocity.y = playerJumpVel
+		
+	if Input.is_action_just_pressed("Sprint") and is_on_floor():
 		velocity.y = playerJumpVel
 
 	# Get the input direction and handle the movement/deceleration.

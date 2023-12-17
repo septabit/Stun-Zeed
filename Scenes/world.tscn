@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://0klok2exe2wf"]
+[gd_scene load_steps=15 format=3 uid="uid://0klok2exe2wf"]
 
 [ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_tpblc"]
 [ext_resource type="Script" path="res://Scripts/Variables Label.gd" id="2_5rbeq"]
+[ext_resource type="MeshLibrary" uid="uid://b2x86wkoh2uc1" path="res://tileset.tres" id="3_bxyqr"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qofy8"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -13,6 +14,8 @@ sky_material = SubResource("ProceduralSkyMaterial_qofy8")
 [sub_resource type="Environment" id="Environment_hhscg"]
 background_mode = 2
 sky = SubResource("Sky_721w7")
+ambient_light_color = Color(1, 1, 0.784314, 1)
+ambient_light_energy = 0.02
 tonemap_mode = 2
 glow_enabled = true
 
@@ -28,13 +31,19 @@ data = PackedVector3Array(1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 0
 
 [sub_resource type="BoxMesh" id="BoxMesh_21vbi"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3r8bb"]
+transparency = 1
+
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_eiqgx"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="Environment" id="Environment_ouhpb"]
 
 [node name="World" type="Node3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, 0, 3.0919, 0)
+visible = false
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -55,32 +64,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.611473, 0)
 
 [node name="playerCamera" type="Camera3D" parent="playerObj/playerView"]
 
-[node name="Ground" type="MeshInstance3D" parent="."]
-transform = Transform3D(13.78, 0, 0, 0, 1, 0, 0, 0, 12.636, 0, 0, 0)
-mesh = SubResource("PlaneMesh_gobsf")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_ei3he")
-
-[node name="Wall1" type="MeshInstance3D" parent="."]
-transform = Transform3D(26.3997, 0, 0, 0, 8.69357, 0, 0, 0, 2.35848, -0.496466, 3.99892, -11.0678)
-mesh = SubResource("BoxMesh_21vbi")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Wall1"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall1/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_eiqgx")
-
-[node name="Wall2" type="MeshInstance3D" parent="."]
-transform = Transform3D(5.94879, 0, 0, 0, 3.4596, -2.45875, 0, 2.04332, 4.163, 4.9832, -0.723386, -2.24394)
-mesh = SubResource("BoxMesh_21vbi")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Wall2"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall2/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_eiqgx")
+[node name="SpotLight3D" type="SpotLight3D" parent="playerObj/playerView/playerCamera"]
+light_color = Color(1, 1, 0.784314, 1)
+spot_range = 93.734
+spot_angle = 15.86
 
 [node name="UserInterface" type="Control" parent="."]
 layout_mode = 3
@@ -94,3 +81,48 @@ offset_right = 40.0
 offset_bottom = 23.0
 text = "Deez nuts"
 script = ExtResource("2_5rbeq")
+
+[node name="Node" type="Node" parent="."]
+
+[node name="Ground" type="MeshInstance3D" parent="Node"]
+transform = Transform3D(13.78, 0, 0, 0, 1, 0, 0, 0, 12.636, 63.6023, 0, 0)
+mesh = SubResource("PlaneMesh_gobsf")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Node/Ground"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Ground/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_ei3he")
+
+[node name="Wall1" type="MeshInstance3D" parent="Node"]
+transform = Transform3D(26.3997, 0, 0, 0, 8.69357, 0, 0, 0, 2.35848, 63.1058, 3.99892, -11.0678)
+mesh = SubResource("BoxMesh_21vbi")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_3r8bb")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Node/Wall1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Wall1/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_eiqgx")
+
+[node name="Wall2" type="MeshInstance3D" parent="Node"]
+transform = Transform3D(5.94879, 0, 0, 0, 3.4596, -2.45875, 0, 2.04332, 4.163, 68.5855, -0.723386, -2.24394)
+mesh = SubResource("BoxMesh_21vbi")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Node/Wall2"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Wall2/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_eiqgx")
+
+[node name="GridMap" type="GridMap" parent="."]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+mesh_library = ExtResource("3_bxyqr")
+cell_size = Vector3(1, 1, 1)
+cell_center_y = false
+data = {
+"cells": PackedInt32Array(0, 0, 1, 0, 65535, 1, 65535, 0, 1, 65535, 65535, 1441793, 0, 65534, 1, 65535, 65534, 1441793, 65534, 65534, 1441793, 65534, 65535, 1048577, 65534, 0, 1048577, 65534, 1, 1048577, 65535, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 65535, 1, 1, 65534, 1, 2, 65533, 0, 2, 2, 1441792, 65533, 2, 655360, 65533, 65533, 1048576, 65534, 65533, 2, 65535, 65533, 2, 1, 65533, 2, 0, 65533, 2, 65533, 65534, 1048578, 65533, 65535, 1048579, 65533, 0, 1048577, 65533, 1, 655363, 65534, 2, 655362, 65535, 2, 655363, 0, 2, 1441795, 1, 2, 655362, 2, 1, 1441794, 2, 0, 1441794, 2, 65535, 1441794, 2, 65534, 1441794, 0, 3, 1441794, 65535, 3, 1048578, 65535, 4, 1048578, 0, 4, 1441794, 0, 5, 1441792, 65535, 5, 655360, 65532, 0, 1048577, 65532, 1, 655362, 65532, 65535, 2, 65531, 65535, 2, 65531, 0, 1048577, 65530, 65535, 1048576, 65530, 0, 1048578, 65531, 1, 655362, 65530, 1, 655360)
+}
+
+[node name="WorldEnvironment2" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ouhpb")
