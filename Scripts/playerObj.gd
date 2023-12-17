@@ -4,8 +4,8 @@ extends CharacterBody3D
 
 #Player States
 
-var playerTorsoState = torsoIDLE
-var playerLegState = legIDLE
+@export var playerTorsoState = torsoIDLE
+@export var playerLegState = legIDLE
 
 #Head States
 enum {
@@ -20,7 +20,8 @@ enum {
 enum {
 	legIDLE,
 	legRUN,
-	legSPRINT
+	legSPRINT,
+	legJUMP
 }
 
 #Player Variables
@@ -48,6 +49,7 @@ var gravity = 9.8
 @onready var playerView = $playerView
 @onready var playerViewCamera = $playerView/playerCamera
 
+
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
@@ -68,19 +70,28 @@ func _physics_process(delta):
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	var input_dir = Input.get_vector("Left", "Right", "Forward", "Backward")
 	var direction = (playerView.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if is_on_floor():
-		if direction:
+		if direction && !Input.is_action_pressed("Sprint"):
 			#If you're moving, then set movement to SPEED.
 			velocity.x = direction.x * playerSpeed
 			velocity.z = direction.z * playerSpeed
+			playerLegState = legRUN 
+			
+		elif direction && Input.is_action_pressed("Sprint"):
+			#If you're moving, then set movement to SPEED.
+			velocity.x = playerSprint * direction.x * playerSpeed
+			velocity.z = playerSprint * direction.z * playerSpeed
+			playerLegState = legRUN 
 		else:
 			#This part sets the speed to 0 if not holding direction.
 			velocity.x = move_toward(velocity.x, 0, playerSpeed) 
 			velocity.z = move_toward(velocity.z, 0, playerSpeed)
+			playerLegState = legIDLE 
 	else:
 		velocity.x = lerp(velocity.x, direction.x * playerSpeed, delta * 2.0)
+		playerLegState = legJUMP
 
 	#Head Bob Code
 	tbob += delta * velocity.length() * float(is_on_floor())
