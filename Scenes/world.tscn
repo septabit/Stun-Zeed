@@ -1,6 +1,7 @@
-[gd_scene load_steps=15 format=3 uid="uid://0klok2exe2wf"]
+[gd_scene load_steps=16 format=3 uid="uid://0klok2exe2wf"]
 
 [ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_tpblc"]
+[ext_resource type="Script" path="res://Scenes/world.gd" id="1_xluie"]
 [ext_resource type="Script" path="res://Scripts/Variables Label.gd" id="2_5rbeq"]
 [ext_resource type="MeshLibrary" uid="uid://b2x86wkoh2uc1" path="res://tileset.tres" id="3_bxyqr"]
 
@@ -40,6 +41,7 @@ data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0
 [sub_resource type="Environment" id="Environment_ouhpb"]
 
 [node name="World" type="Node3D"]
+script = ExtResource("1_xluie")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, 0, 3.0919, 0)
