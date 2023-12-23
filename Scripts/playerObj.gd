@@ -134,12 +134,9 @@ func process_input(delta):
 	#======================================
 	if is_on_floor():
 		if Input.is_action_just_pressed("Jump"):
-			#jump force is multiplied by floor normal so that the jump is directly off the plane.
-			print(vel)
 			vel.y = playerJumpVel
-			print(vel)
-			vel = vel + (playerJumpVel * get_floor_normal()) #CHANGING MOVEMENT BROKE THIS :(
-			print(vel)
+			#jump force is multiplied by floor normal so that the jump is directly off the plane.
+			#vel = vel + (playerJumpVel * get_floor_normal()) #CHANGING MOVEMENT BROKE THIS :(
 		if Input.is_action_pressed("Sprint"):
 			playerSpeed = playerRun * playerSprint
 			isPlayerSprint = true
