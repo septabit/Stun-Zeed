@@ -58,6 +58,9 @@ environment = SubResource("Environment_hhscg")
 [node name="playerObj" type="CharacterBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0195868, 2.52214, 0.0131612)
 script = ExtResource("1_tpblc")
+playerJumpVel = null
+playerRun = null
+playerSprint = null
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="playerObj"]
 mesh = SubResource("CapsuleMesh_vt3po")
