@@ -31,7 +31,6 @@ enum {
 	legJUMP
 }
 
-
 #======================================
 # Movement Variables
 #======================================
@@ -45,6 +44,9 @@ var isPlayerSprint = false
 var gravity = 9.8
 #var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 #Default Gravity set in the game.
+
+var input_dir = Vector2()
+var direction = Vector3()
 
 #======================================
 # Control Variables
@@ -79,10 +81,24 @@ func _unhandled_input(event):
 		playerViewCamera.rotation.x = clamp(playerViewCamera.rotation.x, deg_to_rad(-40), deg_to_rad(60))
 
 func _physics_process(delta):
-	# Add the gravity.
-	if not is_on_floor():
-		velocity.y -= gravity * delta
 
+	#Process Input
+	process_input(delta)
+	
+	#Process Leg Movement
+	process_movement(delta)
+	
+	#Debug related code.
+	print(playerLegState)
+
+
+func _headbob(time) -> Vector3:
+	#This function just gives a headbob to the character.
+	var pos = Vector3.ZERO
+	pos.y = sin(time * bobFreq) * bobAmp
+	return pos
+
+func process_input(delta):
 	# Handle jump.
 	if Input.is_action_just_pressed("Jump") and is_on_floor():
 		#Jump is now multplied by floor normal so that the jump is directly off the plane.
@@ -96,13 +112,15 @@ func _physics_process(delta):
 		playerSpeed = playerRun
 		isPlayerSprint = false
 		
-	
-
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir = Input.get_vector("Left", "Right", "Forward", "Backward")
-	var direction = (playerView.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
+	input_dir = Input.get_vector("Left", "Right", "Forward", "Backward")
+	direction = (playerView.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	
+func process_movement(delta):
+	if not is_on_floor():
+		velocity.y -= gravity * delta
 	if is_on_floor():
 		if direction:
 			#If you're moving, then set movement to SPEED.
@@ -122,9 +140,7 @@ func _physics_process(delta):
 		velocity.x = lerp(velocity.x, direction.x * playerSpeed, delta * playerAirAcc)
 		velocity.z = lerp(velocity.z, direction.z * playerSpeed, delta * playerAirAcc)
 		playerLegState = legJUMP
-	
-	print(playerLegState)
-	
+		
 	#======================================
 	# FOV & Head Bob Code
 	#======================================
@@ -138,11 +154,3 @@ func _physics_process(delta):
 	# MOVE AND SLIDE!!!
 	#======================================
 	move_and_slide()
-	
-
-
-func _headbob(time) -> Vector3:
-	#This function just gives a headbob to the character.
-	var pos = Vector3.ZERO
-	pos.y = sin(time * bobFreq) * bobAmp
-	return pos

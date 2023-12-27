@@ -1,10 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://0klok2exe2wf"]
+[gd_scene load_steps=15 format=3 uid="uid://0klok2exe2wf"]
 
 [ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_tpblc"]
 [ext_resource type="Script" path="res://Scripts/world.gd" id="1_xluie"]
 [ext_resource type="Script" path="res://Scripts/Variables Label.gd" id="2_5rbeq"]
-[ext_resource type="MeshLibrary" uid="uid://b2x86wkoh2uc1" path="res://tileset.tres" id="3_bxyqr"]
-[ext_resource type="Script" path="res://Scripts/FloatingPlatform.gd" id="5_17f55"]
+[ext_resource type="PackedScene" uid="uid://c4l8qskrcr8pv" path="res://Objects/floating_platform.tscn" id="5_agn8a"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qofy8"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -39,11 +38,6 @@ transparency = 1
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_eiqgx"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
 
-[sub_resource type="BoxMesh" id="BoxMesh_jrldn"]
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_2800n"]
-data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
-
 [node name="World" type="Node3D"]
 script = ExtResource("1_xluie")
 
@@ -72,7 +66,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.611473, 0)
 [node name="playerCamera" type="Camera3D" parent="playerObj/playerView"]
 
 [node name="Flashlight" type="SpotLight3D" parent="playerObj/playerView/playerCamera"]
-light_color = Color(1, 1, 0.784314, 1)
 spot_range = 93.734
 spot_angle = 15.86
 
@@ -96,7 +89,7 @@ script = ExtResource("2_5rbeq")
 [node name="Node" type="Node" parent="."]
 
 [node name="Ground" type="MeshInstance3D" parent="Node"]
-transform = Transform3D(13.78, 0, 0, 0, 1, 0, 0, 0, 12.636, 28.9178, 0, 0)
+transform = Transform3D(13.78, 0, 0, 0, 1, 0, 0, 0, 12.636, 4.21457, 0, 0)
 mesh = SubResource("PlaneMesh_gobsf")
 skeleton = NodePath("../..")
 
@@ -106,7 +99,7 @@ skeleton = NodePath("../..")
 shape = SubResource("ConcavePolygonShape3D_ei3he")
 
 [node name="Wall1" type="MeshInstance3D" parent="Node"]
-transform = Transform3D(26.3997, 0, 0, 0, 8.69357, 0, 0, 0, 2.35848, 28.4213, 3.99892, -11.0678)
+transform = Transform3D(26.3997, 0, 0, 0, 8.69357, 0, 0, 0, 2.35848, 3.71807, 3.99892, -11.0678)
 mesh = SubResource("BoxMesh_21vbi")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_3r8bb")
@@ -117,7 +110,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_3r8bb")
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
 [node name="Wall2" type="MeshInstance3D" parent="Node"]
-transform = Transform3D(5.94879, 0, 0, 0, 3.4596, -2.45875, 0, 2.04332, 4.163, 33.901, -0.723386, -2.24394)
+transform = Transform3D(5.94879, 0, 0, 0, 3.4596, -2.45875, 0, 2.04332, 4.163, 9.19777, -0.723386, -2.24394)
 mesh = SubResource("BoxMesh_21vbi")
 skeleton = NodePath("../..")
 
@@ -126,21 +119,5 @@ skeleton = NodePath("../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Wall2/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
-[node name="GridMap" type="GridMap" parent="."]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-mesh_library = ExtResource("3_bxyqr")
-cell_size = Vector3(1, 1, 1)
-cell_center_y = false
-data = {
-"cells": PackedInt32Array(0, 0, 1, 0, 65535, 1, 65535, 0, 1, 65535, 65535, 1441793, 0, 65534, 1, 65535, 65534, 1441793, 65534, 65534, 1441793, 65534, 65535, 1048577, 65534, 0, 1048577, 65534, 1, 1048577, 65535, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 65535, 1, 1, 65534, 1, 2, 65533, 0, 2, 2, 1441792, 65533, 2, 655360, 65533, 65533, 1048576, 65534, 65533, 2, 65535, 65533, 2, 1, 65533, 2, 0, 65533, 2, 65533, 65534, 1048578, 65533, 65535, 1048579, 65533, 0, 1048577, 65533, 1, 655363, 65534, 2, 655362, 65535, 2, 655363, 0, 2, 1441795, 1, 2, 655362, 2, 1, 1441794, 2, 0, 1441795, 2, 65535, 3, 2, 65534, 1441794, 0, 3, 1441794, 65535, 3, 1048578, 65535, 4, 1048578, 0, 4, 1441794, 0, 5, 1441792, 65535, 5, 655360, 65532, 0, 1048577, 65532, 1, 655362, 65532, 65535, 2, 65531, 65535, 2, 65531, 0, 1048577, 65530, 65535, 1048576, 65530, 0, 1048578, 65531, 1, 655362, 65530, 1, 655360, 3, 0, 655362, 3, 65535, 2, 4, 65535, 2, 4, 0, 655362, 5, 65535, 2, 6, 65535, 2, 7, 65535, 2, 5, 0, 655362, 6, 0, 655362, 7, 0, 655362)
-}
-metadata/_editor_floor_ = Vector3(0, 0, 0)
-
-[node name="FloatingPlatform" type="AnimatableBody3D" parent="."]
-script = ExtResource("5_17f55")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="FloatingPlatform"]
-mesh = SubResource("BoxMesh_jrldn")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FloatingPlatform"]
-shape = SubResource("ConcavePolygonShape3D_2800n")
+[node name="FloatingPlatform" parent="." instance=ExtResource("5_agn8a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.28735, 0.821813, 0)
