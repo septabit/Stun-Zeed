@@ -7,29 +7,46 @@ extends CharacterBody3D
 #======================================
 @onready var playerView = $playerView
 @onready var playerViewCamera = $playerView/playerCamera
+@onready var pcap = $CollisionShape #player capsule.
+@onready var headBonker = $headBonker
 
 #Player States
 
-var playerTorsoState = torsoIDLE
-var playerLegState = legIDLE
+
 
 #Head States
-enum {
-	torsoIDLE,
-	torsoSPRINT,
-	torsoWEAPON,
-	torsoCAST,
-	torsoHOLDITEM,
-	torsoHOLDBIG,
-	torsoSTUN
+var legStates =  {
+	"torsoIDLE":["torsoSTOW", "torsoATTACK", "torsoRELOAD", "torsoSTUN", "torsoSPRINT", "torsoCAST"],
+	"torsoSTOW":["torsoREADY"],
+	"torsoREADY":["torsoIDLE"],
+	"torsoRELOAD":["torsoIDLE"],
+	"torsoATTACK":["torsoATTACK", "torsoIDLE", "torsoSTUN"],
+	"torsoSPRINT":["torsoIDLE"],
+	"torsoCAST":["torsoIDLE"],
 }
+
+
 
 enum {
 	legIDLE,
 	legRUN,
 	legSPRINT,
-	legJUMP
+	legJUMP,
+	legCROUCH,
+	legCROUCHWALK,
+	legCROUCHJUMP,
 }
+
+var playerTorsoState = "torsoIDLE"
+var playerLegState = legIDLE
+#======================================
+# Body Variables
+#======================================
+var playerHeight = 1.5
+var playerHeightCrouch = 0.5
+
+
+
 
 #======================================
 # Movement Variables
@@ -37,11 +54,16 @@ enum {
 @export_group("Movement Variables")
 @export var playerJumpVel = 7 #4.5 #Jump Velocity
 @export var playerRun = 5.0
-@export var playerSprint = 1.5 #The multiplier for sprinting
+@export var playerSprintSpeedMult = 1.5 #The multiplier for sprinting
+@export var playerCrouchSpeedMult = 0.6 #The multplier for crouching
 @export var playerAirAcc = 1 #Controls the amount of air control you have. Less = more commitment to jumps.
 var playerSpeed = playerRun #Speed of the player.
 var isPlayerSprint = false
+var isPlayerCrouch = false
+var headBonk = false #this checks if you can uncrouch 
 var gravity = 9.8
+
+var playerCrouchSpeed = 5 #This is the SPEED TO CROUCH not the SPEED FROM CROUCHING
 #var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 #Default Gravity set in the game.
 
@@ -81,7 +103,10 @@ func _unhandled_input(event):
 		playerViewCamera.rotation.x = clamp(playerViewCamera.rotation.x, deg_to_rad(-40), deg_to_rad(60))
 
 func _physics_process(delta):
-
+	
+	#Do playerchecks
+	process_flags()
+	
 	#Process Input
 	process_input(delta)
 	
@@ -102,15 +127,36 @@ func process_input(delta):
 	# Handle jump.
 	if Input.is_action_just_pressed("Jump") and is_on_floor():
 		#Jump is now multplied by floor normal so that the jump is directly off the plane.
+		#NOTE may want to update this to occur over a period of time (longer button press = higher jump)
 		velocity = velocity + (playerJumpVel * get_floor_normal())
 		#velocity.y = playerJumpVel
+	
+	
+	if Input.is_action_pressed("Crouch"):
+		playerSpeed = playerRun * playerCrouchSpeedMult
+		isPlayerCrouch = true
+		pcap.shape.height -= playerCrouchSpeed * delta
+	elif not headBonk:
+		playerSpeed = playerRun
+		isPlayerCrouch = false
+		pcap.shape.height += playerCrouchSpeed * delta
 		
-	if Input.is_action_pressed("Sprint") and is_on_floor():
-		playerSpeed = playerRun * playerSprint
+	pcap.shape.height = clamp(pcap.shape.height, playerHeightCrouch, playerHeight)
+	
+	clamp(playerViewCamera.rotation.x, deg_to_rad(-40), deg_to_rad(60))
+	
+	if Input.is_action_pressed("Sprint") and is_on_floor() and isPlayerCrouch != true:
+		playerSpeed = playerRun * playerSprintSpeedMult
 		isPlayerSprint = true
 	else:
 		playerSpeed = playerRun
 		isPlayerSprint = false
+	
+	if Input.is_action_pressed("PrimaryFire"):
+		primary_fire()
+		
+	if Input.is_action_pressed("SecondaryFire"):
+		secondary_fire()
 		
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
@@ -129,13 +175,18 @@ func process_movement(delta):
 			#Set state for if running or sprinting.
 			if isPlayerSprint:
 				playerLegState = legSPRINT
+			elif isPlayerCrouch:
+				playerLegState = legCROUCHWALK
 			else:
-				playerLegState = legRUN 
+				playerLegState = legRUN
 		else:
 			#This part sets the speed to 0 if not holding direction.
 			velocity.x = move_toward(velocity.x, 0, playerSpeed) 
 			velocity.z = move_toward(velocity.z, 0, playerSpeed)
-			playerLegState = legIDLE 
+			if isPlayerCrouch:
+				playerLegState = legCROUCH
+			else:
+				playerLegState = legIDLE 
 	else:
 		velocity.x = lerp(velocity.x, direction.x * playerSpeed, delta * playerAirAcc)
 		velocity.z = lerp(velocity.z, direction.z * playerSpeed, delta * playerAirAcc)
@@ -154,3 +205,16 @@ func process_movement(delta):
 	# MOVE AND SLIDE!!!
 	#======================================
 	move_and_slide()
+
+
+func primary_fire():
+	return
+
+
+func secondary_fire():
+	return
+
+func process_flags():
+	headBonk = false
+	if headBonker.is_colliding():
+		headBonk = true
