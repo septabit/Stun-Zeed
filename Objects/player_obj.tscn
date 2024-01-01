@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3 uid="uid://cvtkr1nkgg85r"]
+
+[ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_mipsp"]
+[ext_resource type="Script" path="res://Objects/WeaponManager.gd" id="2_og42u"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vt3po"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6efsy"]
+
+[node name="playerObj" type="CharacterBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0195868, 2.52214, 0.0131612)
+wall_min_slide_angle = 1.33867
+script = ExtResource("1_mipsp")
+playerJumpVel = null
+playerRun = null
+playerSprintSpeedMult = null
+playerCrouchSpeedMult = null
+playerAirAcc = null
+playerSens = null
+maxHP = null
+currHP = null
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_vt3po")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_6efsy")
+
+[node name="playerView" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.611473, 0)
+
+[node name="playerCamera" type="Camera3D" parent="playerView"]
+
+[node name="TorsoModel" type="MeshInstance3D" parent="playerView"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="playerView/TorsoModel"]
+
+[node name="WeaponManager" type="Node3D" parent="playerView"]
+script = ExtResource("2_og42u")
+
+[node name="headBonker" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.166374, 0)
+target_position = Vector3(0, 1, 0)

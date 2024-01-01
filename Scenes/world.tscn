@@ -1,28 +1,9 @@
-[gd_scene load_steps=17 format=3 uid="uid://0klok2exe2wf"]
+[gd_scene load_steps=15 format=3 uid="uid://0klok2exe2wf"]
 
-[ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_tpblc"]
 [ext_resource type="Script" path="res://Scripts/world.gd" id="1_xluie"]
-[ext_resource type="Script" path="res://Scripts/Variables Label.gd" id="2_5rbeq"]
+[ext_resource type="PackedScene" uid="uid://cvtkr1nkgg85r" path="res://Objects/player_obj.tscn" id="2_ddd3i"]
 [ext_resource type="Script" path="res://Scripts/FloatingPlatform.gd" id="4_0flbw"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qofy8"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-
-[sub_resource type="Sky" id="Sky_721w7"]
-sky_material = SubResource("ProceduralSkyMaterial_qofy8")
-
-[sub_resource type="Environment" id="Environment_hhscg"]
-background_mode = 2
-sky = SubResource("Sky_721w7")
-ambient_light_color = Color(1, 1, 0.784314, 1)
-ambient_light_energy = 0.02
-tonemap_mode = 2
-glow_enabled = true
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_vt3po"]
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6efsy"]
+[ext_resource type="PackedScene" uid="uid://3j82goxdyfir" path="res://Objects/weapons/w_flashlight.tscn" id="5_hepui"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_gobsf"]
 
@@ -42,107 +23,90 @@ data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ioil0"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qofy8"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_721w7"]
+sky_material = SubResource("ProceduralSkyMaterial_qofy8")
+
+[sub_resource type="Environment" id="Environment_hhscg"]
+background_mode = 2
+sky = SubResource("Sky_721w7")
+ambient_light_color = Color(1, 1, 0.784314, 1)
+ambient_light_energy = 0.02
+tonemap_mode = 2
+glow_enabled = true
+
 [node name="World" type="Node3D"]
 script = ExtResource("1_xluie")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, 0, 3.0919, 0)
-visible = false
-shadow_enabled = true
+[node name="stage" type="Node3D" parent="."]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_hhscg")
-
-[node name="playerObj" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0195868, 2.52214, 0.0131612)
-wall_min_slide_angle = 1.33867
-script = ExtResource("1_tpblc")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="playerObj"]
-mesh = SubResource("CapsuleMesh_vt3po")
-
-[node name="CollisionShape" type="CollisionShape3D" parent="playerObj"]
-shape = SubResource("CapsuleShape3D_6efsy")
-
-[node name="playerView" type="Node3D" parent="playerObj"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.611473, 0)
-
-[node name="playerCamera" type="Camera3D" parent="playerObj/playerView"]
-
-[node name="Flashlight" type="SpotLight3D" parent="playerObj/playerView/playerCamera"]
-spot_range = 93.734
-spot_angle = 15.86
-
-[node name="TorsoModel" type="MeshInstance3D" parent="playerObj/playerView"]
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="playerObj/playerView/TorsoModel"]
-
-[node name="headBonker" type="RayCast3D" parent="playerObj"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.166374, 0)
-target_position = Vector3(0, 1, 0)
-
-[node name="UserInterface" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="Variables Label" type="Label" parent="UserInterface"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-text = "Deez nuts"
-script = ExtResource("2_5rbeq")
-
-[node name="Node" type="Node" parent="."]
-
-[node name="Ground" type="MeshInstance3D" parent="Node"]
+[node name="Ground" type="MeshInstance3D" parent="stage"]
 transform = Transform3D(13.78, 0, 0, 0, 1, 0, 0, 0, 12.636, 4.21457, 0, 0)
 mesh = SubResource("PlaneMesh_gobsf")
 skeleton = NodePath("../..")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Node/Ground"]
+[node name="StaticBody3D" type="StaticBody3D" parent="stage/Ground"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Ground/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage/Ground/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_ei3he")
 
-[node name="Wall1" type="MeshInstance3D" parent="Node"]
+[node name="Wall1" type="MeshInstance3D" parent="stage"]
 transform = Transform3D(26.3997, 0, 0, 0, 8.69357, 0, 0, 0, 2.35848, 3.71807, 3.99892, -11.0678)
 mesh = SubResource("BoxMesh_21vbi")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_3r8bb")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Node/Wall1"]
+[node name="StaticBody3D" type="StaticBody3D" parent="stage/Wall1"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Wall1/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage/Wall1/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
-[node name="Wall2" type="MeshInstance3D" parent="Node"]
+[node name="Wall2" type="MeshInstance3D" parent="stage"]
 transform = Transform3D(5.94879, 0, 0, 0, 3.4596, -2.45875, 0, 2.04332, 4.163, 9.19777, -0.723386, -2.24394)
 mesh = SubResource("BoxMesh_21vbi")
 skeleton = NodePath("../..")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Node/Wall2"]
+[node name="StaticBody3D" type="StaticBody3D" parent="stage/Wall2"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Wall2/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage/Wall2/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
-[node name="Wall3" type="MeshInstance3D" parent="Node"]
+[node name="Wall3" type="MeshInstance3D" parent="stage"]
 transform = Transform3D(5.94879, 0, 0, 0, 4.01796, 0, 0, 0, 4.83488, -4.50379, 3.02709, -2.24394)
 mesh = SubResource("BoxMesh_21vbi")
 skeleton = NodePath("../..")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Node/Wall3"]
+[node name="StaticBody3D" type="StaticBody3D" parent="stage/Wall3"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Node/Wall3/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage/Wall3/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
-[node name="AnimatableBody3D" type="AnimatableBody3D" parent="."]
+[node name="AnimatableBody3D" type="AnimatableBody3D" parent="stage"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.33167, 0.625858, 0)
 script = ExtResource("4_0flbw")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="AnimatableBody3D"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="stage/AnimatableBody3D"]
 mesh = SubResource("BoxMesh_tcaae")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="AnimatableBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage/AnimatableBody3D"]
 shape = SubResource("ConcavePolygonShape3D_ioil0")
+
+[node name="objects" type="Node3D" parent="."]
+
+[node name="playerObj" parent="objects" instance=ExtResource("2_ddd3i")]
+
+[node name="w_flashlight" parent="objects" instance=ExtResource("5_hepui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.88288, 2.40394, 0.710389)
+
+[node name="env" type="Node3D" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="env"]
+transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.75, -0.43301, 0, 3.0919, 0)
+visible = false
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="env"]
+environment = SubResource("Environment_hhscg")

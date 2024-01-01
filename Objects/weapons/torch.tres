@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon_Resource" load_steps=2 format=3 uid="uid://bdg35osrm7wvl"]
+
+[ext_resource type="Script" path="res://weapon_resource.gd" id="1_1pb56"]
+
+[resource]
+script = ExtResource("1_1pb56")
+Weapon_Name = null
+AmmoCurr = null
+AmmoMag = null
+AmmoReserve = null
+Ready_Anim = null
+Stow_Anim = null
+Idle_Anim = null
+Reload_Anim = null
+Deactivate_Anim = null
+Shoot_Prim_Anim = null
+Shoot_Sec_Anim = null
+Auto_Fire = null
+Charge_Fire = null

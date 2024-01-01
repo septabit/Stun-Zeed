@@ -9,6 +9,7 @@ extends CharacterBody3D
 @onready var playerViewCamera = $playerView/playerCamera
 @onready var pcap = $CollisionShape #player capsule.
 @onready var headBonker = $headBonker
+@onready var weaponManager = $playerView/WeaponManager
 
 #Player States
 
@@ -70,6 +71,8 @@ var playerCrouchSpeed = 5 #This is the SPEED TO CROUCH not the SPEED FROM CROUCH
 var input_dir = Vector2()
 var direction = Vector3()
 
+
+
 #======================================
 # Control Variables
 #======================================
@@ -80,7 +83,8 @@ var direction = Vector3()
 # Player Stats
 #======================================
 @export_group("Player Stats")
-@export var playerHealth = 100
+@export var maxHP = 100
+@export var currHP = 100
 
 #======================================
 # Head bob & FOV Settings
@@ -100,7 +104,7 @@ func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		playerView.rotate_y(-event.relative.x * playerSens)
 		playerViewCamera.rotate_x(-event.relative.y * playerSens)
-		playerViewCamera.rotation.x = clamp(playerViewCamera.rotation.x, deg_to_rad(-40), deg_to_rad(60))
+		playerViewCamera.rotation.x = clamp(playerViewCamera.rotation.x, deg_to_rad(-80), deg_to_rad(80))
 
 func _physics_process(delta):
 	
@@ -115,7 +119,6 @@ func _physics_process(delta):
 	
 	#Debug related code.
 	print(playerLegState)
-
 
 func _headbob(time) -> Vector3:
 	#This function just gives a headbob to the character.
@@ -143,14 +146,13 @@ func process_input(delta):
 		
 	pcap.shape.height = clamp(pcap.shape.height, playerHeightCrouch, playerHeight)
 	
-	clamp(playerViewCamera.rotation.x, deg_to_rad(-40), deg_to_rad(60))
-	
-	if Input.is_action_pressed("Sprint") and is_on_floor() and isPlayerCrouch != true:
-		playerSpeed = playerRun * playerSprintSpeedMult
-		isPlayerSprint = true
-	else:
-		playerSpeed = playerRun
-		isPlayerSprint = false
+	if isPlayerCrouch != true:
+		if Input.is_action_pressed("Sprint") and is_on_floor():
+			playerSpeed = playerRun * playerSprintSpeedMult
+			isPlayerSprint = true
+		else:
+			playerSpeed = playerRun
+			isPlayerSprint = false
 	
 	if Input.is_action_pressed("PrimaryFire"):
 		primary_fire()
@@ -206,15 +208,54 @@ func process_movement(delta):
 	#======================================
 	move_and_slide()
 
-
-func primary_fire():
-	return
-
-
-func secondary_fire():
-	return
+func process_weapons():
+	
+	#weapon swap
+	if Input.is_action_just_pressed("slot_0"):
+		weaponManager.change_weapon(0)
+	
+	if Input.is_action_just_pressed("slot_1"):
+		weaponManager.change_weapon(1)
+		
+	if Input.is_action_just_pressed("slot_2"):
+		weaponManager.change_weapon(2)
+		
+	if Input.is_action_just_pressed("slot_3"):
+		weaponManager.change_weapon(3)
+	
+	#weapon firing
+	if Input.is_action_just_pressed("PrimaryFire"):
+		weaponManager.prim_fire()
+	if Input.is_action_just_released("PrimaryFire"):
+		weaponManager.prim_fire_stop()
+	if Input.is_action_just_pressed("SecondaryFire"):
+		weaponManager.sec_fire()
+	if Input.is_action_just_released("SecondaryFire"):
+		weaponManager.sec_fire_stop()
+		
+	#weapon reload
+	if Input.is_action_just_pressed("reload"):
+		weaponManager.reload()
+	
+	#weapon drop
+	if Input.is_action_just_pressed("drop"):
+		weaponManager.drop_weapon()
+		
+	#weapon pickup
+	
 
 func process_flags():
 	headBonk = false
 	if headBonker.is_colliding():
 		headBonk = true
+
+func take_damage(damage):
+	currHP -= damage
+	if currHP <= 0:
+		die()
+		
+func die():
+	pass
+	
+func add_health(amount):
+	currHP = clamp(currHP + amount, 0, maxHP)

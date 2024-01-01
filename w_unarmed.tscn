@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdpf3kx2pgapx"]
+
+[ext_resource type="Script" path="res://w_unarmed.gd" id="1_uclen"]
+
+[node name="w_unarmed" type="Node"]
+script = ExtResource("1_uclen")
