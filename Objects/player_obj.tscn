@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://cvtkr1nkgg85r"]
 
 [ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_mipsp"]
-[ext_resource type="Script" path="res://Objects/WeaponManager.gd" id="2_og42u"]
+[ext_resource type="Script" path="res://Scripts/entities/WeaponManager.gd" id="2_0bh3k"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_vt3po"]
 
@@ -34,7 +34,7 @@ collision_mask = 4
 [node name="AnimationPlayer" type="AnimationPlayer" parent="playerView/playerTorsoModel"]
 
 [node name="WeaponManager" type="Node3D" parent="playerView"]
-script = ExtResource("2_og42u")
+script = ExtResource("2_0bh3k")
 
 [node name="weaponPOS" type="Node3D" parent="playerView/WeaponManager"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.429619, -0.56384, -0.780245)
