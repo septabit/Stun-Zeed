@@ -1,15 +1,27 @@
 extends Node3D
 
 @onready var animPlayer = $"../TorsoModel/AnimationPlayer"
+@onready var itemGrabber = $"../playerCamera/itemGrabber"
 
-var allWeapons = {}
-var currWeapons = {}
-
-
-var hud
-
+var currWeapon 
 var currWeaponSlot = 0
-var currWeapon
+
+var isItemOnCrosshair = false
+
+var WeaponSlotsIndex = { 
+	0 : "slot0",
+	1 : "slot1",
+	2 : "slot2",
+	3 : "slot3"
+}
+
+var WeaponSlots = {
+	"slot0" : null,
+	"slot1" : null,
+	"slot2" : null,
+	"slot3" : null
+}
+
 
 var changing_weapon = false
 var unequipped_weapon = false
@@ -23,53 +35,47 @@ var Next_Weapon: String
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	
-	allWeapons = {
-		"unarmed" : preload(""),
-		"flashlight" : preload("res://Objects/weapons/w_flashlight.tscn"),
-		#"shotgun" : preload("")
-	}
+	pass
 
-	currWeapons = {
-		"slot0" : $unarmed,
-		"slot1" : $unarmed,
-		"slot2" : $unarmed,
-		"slot3" : $unarmed
-	}
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+func _physics_process(delta):
+	print(itemGrabber.get_collider())
 
 func scrollWeaponSlot(dir):
 	#Function only takes +1 or -1
-	if currWeaponSlot == 3 and dir == 1:
-		currWeaponSlot = 0
-	elif currWeaponSlot == 0 and dir == -1:
-		currWeaponSlot = 3
-	else:
-		currWeaponSlot += dir
+	currWeaponSlot = (currWeaponSlot + dir) % WeaponSlots.size()
 
-func pickup(item):
-	currslot = 
+func pickup_Item():
+	if itemGrabber.is_colliding():
+		#Checks pickup raycast, if it's there, add ownership to the item  and add to item inventory
+		var itemStore = itemGrabber.get_collider()
+		WeaponSlots[WeaponSlotsIndex[currWeaponSlot]]  = itemStore
+		itemStore.updateOwnership($self)
+	
+func drop_Item():
+	#Removes the ownership on the item, then removes the item from inventory.
+	WeaponSlots[WeaponSlotsIndex[currWeaponSlot]].removeOwnership($self)
+	WeaponSlots[WeaponSlotsIndex[currWeaponSlot]] = null
+
 
 func prim_fire():
-	return
+	pass
 	
 func sec_fire():
-	return
+	pass
 	
 func prim_fire_stop():
-	return
+	pass
 	
 func sec_fire_stop():
-	return
+	pass
 	
 func reload():
-	return
+	pass
 	
 func drop_weapon():
-	return
+	pass
 	
 	

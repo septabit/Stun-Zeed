@@ -99,7 +99,7 @@ shape = SubResource("ConcavePolygonShape3D_ioil0")
 [node name="playerObj" parent="objects" instance=ExtResource("2_ddd3i")]
 
 [node name="w_flashlight" parent="objects" instance=ExtResource("5_hepui")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.88288, 2.40394, 0.710389)
+transform = Transform3D(4.55794, 0, 0, 0, 4.55794, 0, 0, 0, 4.55794, 4.62714, 7.36692, -3.40621)
 
 [node name="env" type="Node3D" parent="."]
 

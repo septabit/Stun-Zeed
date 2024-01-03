@@ -45,8 +45,8 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_sxqdg")
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_m4s1m"]
-points = PackedVector3Array(-0.0289797, -0.129688, -5.19864e-06, -0.0144957, -0.129688, -0.0265625, -0.0144957, -0.129688, 0.0265625, -0.0289797, -0.0672123, -5.19864e-06, -0.0144957, -0.0672123, -0.0265625, 0.0144837, -0.129688, -0.0265625, 0.0144837, -0.129688, 0.0265625, -0.0144957, -0.0672123, 0.0265625, -0.0180472, 0.125, -5.19864e-06, -0.00902658, 0.125, -0.0156265, 0.0144837, -0.0672123, -0.0265625, 0.0289791, -0.129688, -5.19864e-06, 0.0144837, -0.0672123, 0.0265625, -0.00902658, 0.125, 0.0156213, 0.00902029, 0.125, -0.0156265, 0.0180409, 0.125, -5.19864e-06, 0.0289791, -0.0672123, -5.19864e-06, 0.00902029, 0.125, 0.0156213)
+[sub_resource type="BoxShape3D" id="BoxShape3D_kquts"]
+size = Vector3(0.309082, 0.285339, 1.34014)
 
 [node name="w_flashlight" type="RigidBody3D"]
 collision_layer = 4
@@ -54,15 +54,16 @@ collision_mask = 5
 script = ExtResource("1_sx81d")
 
 [node name="model" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, -0.000555565, -0.000230419, -0.00022991, 0.000899622, -1, 0.000555776, 0.999999, 0.000899492, 0, 0, 0)
+transform = Transform3D(5.24594, -0.00291448, 1.27396e-10, 0, -2.29308e-07, -5.24594, 0.00291448, 5.24594, -2.29307e-07, 0, 0, 0)
+layers = 4
 mesh = SubResource("ArrayMesh_gtvos")
 skeleton = NodePath("")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, -0.000555565, -0.000230419, -0.00022991, 0.000899622, -1, 0.000555776, 0.999999, 0.000899492, 0, 0, 0)
-shape = SubResource("ConvexPolygonShape3D_m4s1m")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.142163)
 spot_range = 5.97126
 spot_angle = 8.29263
+
+[node name="collisionBox" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.05176e-05, -0.011982)
+shape = SubResource("BoxShape3D_kquts")

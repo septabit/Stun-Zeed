@@ -1,12 +1,31 @@
 extends RigidBody3D
 
+var objName = "flashlight"
+
 var isPowered = false
 @onready var lightSource = $SpotLight3D
+
+# var pos = $self.position
+var isHeld = false
+var itemOwner = null
+var itemSlot = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
 
+func updatePOS():
+	if itemOwner != null:
+		$self.position = itemOwner.weaponPOS
+		
+
+func updateOwnership(player):
+	itemOwner = player
+	isHeld = true
+
+func removeOwnership(player):
+	itemOwner = null
+	isHeld = false
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -14,6 +33,8 @@ func _process(delta):
 		lightSource.show()
 	else:
 		lightSource.hide()
+		
+	
 
 
 func prim_fire():
@@ -24,3 +45,4 @@ func sec_fire():
 
 func reload():
 	pass
+

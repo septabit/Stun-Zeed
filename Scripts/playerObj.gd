@@ -153,12 +153,17 @@ func process_input(delta):
 		else:
 			playerSpeed = playerRun
 			isPlayerSprint = false
+			
+	if Input.is_action_just_pressed("Pick Up"):
+		weaponManager.pickup_Item()
 	
 	if Input.is_action_pressed("PrimaryFire"):
-		primary_fire()
+		pass
+		#primary_fire()
 		
 	if Input.is_action_pressed("SecondaryFire"):
-		secondary_fire()
+		pass
+		#secondary_fire()
 		
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
