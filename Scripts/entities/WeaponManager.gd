@@ -2,6 +2,7 @@ extends Node3D
 
 @onready var animPlayer = $"../TorsoModel/AnimationPlayer"
 @onready var itemGrabber = $"../playerCamera/itemGrabber"
+@onready var lab = $"../../CanvasLayer/Label"
 
 var currWeapon 
 var currWeaponSlot = 0
@@ -42,6 +43,11 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
 	print(itemGrabber.get_collider())
+	print(WeaponSlots)
+	var teststring = "The weapon slot is %s"
+	var teststring2 = teststring % weaponNum
+	#lab.settext( teststring2) 
+	
 
 func scrollWeaponSlot(dir):
 	#Function only takes +1 or -1

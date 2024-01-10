@@ -9,7 +9,9 @@ extends CharacterBody3D
 @onready var playerViewCamera = $playerView/playerCamera
 @onready var pcap = $CollisionShape #player capsule.
 @onready var headBonker = $headBonker
+@onready var floorSnapBelow = $floorSnapBelow
 @onready var weaponManager = $playerView/WeaponManager
+
 
 #Player States
 
@@ -37,6 +39,7 @@ enum {
 	legCROUCHWALK,
 	legCROUCHJUMP,
 }
+
 
 var playerTorsoState = "torsoIDLE"
 var playerLegState = legIDLE
@@ -129,10 +132,7 @@ func _headbob(time) -> Vector3:
 func process_input(delta):
 	# Handle jump.
 	if Input.is_action_just_pressed("Jump") and is_on_floor():
-		#Jump is now multplied by floor normal so that the jump is directly off the plane.
-		#NOTE may want to update this to occur over a period of time (longer button press = higher jump)
-		velocity = velocity + (playerJumpVel * get_floor_normal())
-		#velocity.y = playerJumpVel
+		jump()
 	
 	
 	if Input.is_action_pressed("Crouch"):
@@ -165,6 +165,13 @@ func process_input(delta):
 		pass
 		#secondary_fire()
 		
+	if Input.is_action_just_pressed("Drop"):
+		weaponManager.drop_Item()
+		
+	if Input.is_action_just_pressed("WeaponListUp"):
+		weaponManager.scrollWeaponSlot(1)
+	if Input.is_action_just_pressed("WeaponListDown"):
+		weaponManager.scrollWeaponSlot(-1)
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	
@@ -209,9 +216,11 @@ func process_movement(delta):
 	playerViewCamera.fov = lerp(playerViewCamera.fov, target_fov, delta * 8.0)
 
 	#======================================
-	# MOVE AND SLIDE!!!
+	# STAIRS AND MOVE AND SLIDE!!!
 	#======================================
+	_rotate_step_up_seperation_ray()
 	move_and_slide()
+	_snap_down_to_stairs_check()
 
 func process_weapons():
 	
@@ -264,3 +273,70 @@ func die():
 	
 func add_health(amount):
 	currHP = clamp(currHP + amount, 0, maxHP)
+
+func jump():
+	#Jump is now multplied by floor normal so that the jump is directly off the plane.
+	#NOTE may want to update this to occur over a period of time (longer button press = higher jump)
+	velocity = velocity + (playerJumpVel * get_floor_normal())
+	#velocity.y = playerJumpVel
+
+#code that handles down stairs:
+var _was_on_floor_last_frame = false
+var _snapped_to_stairs_last_frame = false
+func _snap_down_to_stairs_check():
+	var did_snap = false
+	if not is_on_floor() and velocity.y <= 0 and (_was_on_floor_last_frame or _snapped_to_stairs_last_frame) and floorSnapBelow.is_colliding():
+		var body_test_result = PhysicsTestMotionResult3D.new()
+		var params = PhysicsTestMotionParameters3D.new()
+		var max_step_down = -0.5
+		params.from = self.global_transform
+		params.motion = Vector3(0,max_step_down,0)
+		if PhysicsServer3D.body_test_motion(self.get_rid(), params, body_test_result):
+			var translate_y = body_test_result.get_travel().y
+			self.position.y += translate_y
+			apply_floor_snap()
+			did_snap = true
+			
+	_was_on_floor_last_frame = is_on_floor()
+	_snapped_to_stairs_last_frame = did_snap
+
+#code that handles going up stairs
+@onready var initial_seperation_ray_dist = abs($floorSeperationRayF.position.z)
+var _last_xz_vel : Vector3 = Vector3(0, 0, 0)
+func _rotate_step_up_seperation_ray():
+	var xz_vel = velocity * Vector3(1,0,1)
+	
+	if xz_vel.length() < 0.1:
+		xz_vel = _last_xz_vel
+	else:
+		_last_xz_vel = xz_vel
+	
+	var xz_f_ray_pos = xz_vel.normalized() * initial_seperation_ray_dist
+	$floorSeperationRayF.global_position.x = self.global_position.x + xz_f_ray_pos.x
+	$floorSeperationRayF.global_position.z = self.global_position.z + xz_f_ray_pos.z
+	
+	var xz_l_ray_pos = xz_f_ray_pos.rotated(Vector3(0,1.0,0), deg_to_rad(-50))
+	$floorSeperationRayL.global_position.x = self.global_position.x + xz_l_ray_pos.x
+	$floorSeperationRayL.global_position.z = self.global_position.z + xz_l_ray_pos.z
+	
+	var xz_r_ray_pos = xz_f_ray_pos.rotated(Vector3(0,1.0,0), deg_to_rad(50))
+	$floorSeperationRayR.global_position.x = self.global_position.x + xz_r_ray_pos.x
+	$floorSeperationRayR.global_position.z = self.global_position.z + xz_r_ray_pos.z
+	
+	$floorSeperationRayF/RayCast3D.force_raycast_update()
+	$floorSeperationRayR/RayCast3D.force_raycast_update()
+	$floorSeperationRayL/RayCast3D.force_raycast_update()
+	var max_slope_ang_dot = Vector3(0, 1, 0).rotated(Vector3(1.0, 0, 0), self.floor_max_angle).dot(Vector3(0,1,0))
+	var any_too_steep = false
+	if $floorSeperationRayF/RayCast3D.is_colliding() and $floorSeperationRayF/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
+		any_too_steep = true
+	if $floorSeperationRayL/RayCast3D.is_colliding() and $floorSeperationRayL/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
+		any_too_steep = true
+	if $floorSeperationRayR/RayCast3D.is_colliding() and $floorSeperationRayR/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
+		any_too_steep = true
+	
+	$floorSeperationRayF.disabled = any_too_steep
+	$floorSeperationRayL.disabled = any_too_steep
+	$floorSeperationRayR.disabled = any_too_steep
+	
+	
