@@ -109,6 +109,8 @@ func _unhandled_input(event):
 		playerViewCamera.rotate_x(-event.relative.y * playerSens)
 		playerViewCamera.rotation.x = clamp(playerViewCamera.rotation.x, deg_to_rad(-80), deg_to_rad(80))
 
+
+
 func _physics_process(delta):
 	
 	#Do playerchecks
@@ -129,10 +131,13 @@ func _headbob(time) -> Vector3:
 	pos.y = sin(time * bobFreq) * bobAmp
 	return pos
 
+
+
 func process_input(delta):
 	# Handle jump.
-	if Input.is_action_just_pressed("Jump") and is_on_floor():
-		jump()
+	
+	jump()
+	
 	
 	
 	if Input.is_action_pressed("Crouch"):
@@ -177,7 +182,8 @@ func process_input(delta):
 	
 	input_dir = Input.get_vector("Left", "Right", "Forward", "Backward")
 	direction = (playerView.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	
+
+
 func process_movement(delta):
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -274,10 +280,19 @@ func die():
 func add_health(amount):
 	currHP = clamp(currHP + amount, 0, maxHP)
 
+var _cur_frame = 0
+@export var _jump_frame_grace = 5
+var _last_frame_was_on_floor = -_jump_frame_grace - 1
+
 func jump():
 	#Jump is now multplied by floor normal so that the jump is directly off the plane.
 	#NOTE may want to update this to occur over a period of time (longer button press = higher jump)
-	velocity = velocity + (playerJumpVel * get_floor_normal())
+	#This first part fixes jumping on planes a little bit
+	_cur_frame += 1
+	if is_on_floor():
+		_last_frame_was_on_floor = _cur_frame
+	if Input.is_action_just_pressed("Jump") and (is_on_floor() or (_cur_frame - _last_frame_was_on_floor <= _jump_frame_grace)):
+		velocity = velocity + (playerJumpVel * get_floor_normal())
 	#velocity.y = playerJumpVel
 
 #code that handles down stairs:

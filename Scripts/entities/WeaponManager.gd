@@ -1,6 +1,6 @@
 extends Node3D
 
-@onready var animPlayer = $"../TorsoModel/AnimationPlayer"
+@onready var animPlayer = $"../playerTorsoModel/AnimationPlayer"
 @onready var itemGrabber = $"../playerCamera/itemGrabber"
 @onready var lab = $"../../CanvasLayer/Label"
 
