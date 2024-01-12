@@ -3,6 +3,7 @@ extends Node3D
 @onready var animPlayer = $"../playerTorsoModel/AnimationPlayer"
 @onready var itemGrabber = $"../playerCamera/itemGrabber"
 @onready var lab = $"../../CanvasLayer/Label"
+@onready var weaponPOS = $"../playerCamera/weaponPOS"
 
 var currWeapon 
 var currWeaponSlot = 0
@@ -58,7 +59,7 @@ func pickup_Item():
 		#Checks pickup raycast, if it's there, add ownership to the item  and add to item inventory
 		var itemStore = itemGrabber.get_collider()
 		WeaponSlots[WeaponSlotsIndex[currWeaponSlot]]  = itemStore
-		itemStore.updateOwnership($self)
+		itemStore.updateOwnership($"../..", weaponPOS) #update to playerobj
 	
 func drop_Item():
 	#Removes the ownership on the item, then removes the item from inventory.
@@ -67,10 +68,10 @@ func drop_Item():
 
 
 func prim_fire():
-	pass
+	WeaponSlots[WeaponSlotsIndex[currWeaponSlot]].prim_fire()
 	
 func sec_fire():
-	pass
+	WeaponSlots[WeaponSlotsIndex[currWeaponSlot]].sec_fire()
 	
 func prim_fire_stop():
 	pass

@@ -76,6 +76,16 @@ skeleton = NodePath("../../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="stage/testlevel_a/Wall2/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
+[node name="Wall4" type="MeshInstance3D" parent="stage/testlevel_a"]
+transform = Transform3D(5.94879, 0, 0, 0, 2.78312, -3.48716, 0, 2.89797, 3.34899, 6.70058, -0.723386, 5.33478)
+mesh = SubResource("BoxMesh_21vbi")
+skeleton = NodePath("../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="stage/testlevel_a/Wall4"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage/testlevel_a/Wall4/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_eiqgx")
+
 [node name="Wall3" type="MeshInstance3D" parent="stage/testlevel_a"]
 transform = Transform3D(5.94879, 0, 0, 0, 4.01796, 0, 0, 0, 4.83488, -4.50379, 3.02709, -2.24394)
 mesh = SubResource("BoxMesh_21vbi")
@@ -84,6 +94,16 @@ skeleton = NodePath("../../..")
 [node name="StaticBody3D" type="StaticBody3D" parent="stage/testlevel_a/Wall3"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="stage/testlevel_a/Wall3/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_eiqgx")
+
+[node name="Wall5" type="MeshInstance3D" parent="stage/testlevel_a"]
+transform = Transform3D(5.94879, 0, 0, 0, 4.01796, 0, 0, 0, 4.83488, -4.50379, 2.00599, 4.80287)
+mesh = SubResource("BoxMesh_21vbi")
+skeleton = NodePath("../../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="stage/testlevel_a/Wall5"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="stage/testlevel_a/Wall5/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
 [node name="AnimatableBody3D" type="AnimatableBody3D" parent="stage/testlevel_a"]
@@ -425,9 +445,6 @@ shape = SubResource("ConcavePolygonShape3D_eiqgx")
 
 [node name="playerObj" parent="objects" instance=ExtResource("2_ddd3i")]
 
-[node name="w_flashlight" parent="objects" instance=ExtResource("5_hepui")]
-transform = Transform3D(4.55794, 0, 0, 0, 4.55794, 0, 0, 0, 4.55794, 4.62714, 7.36692, -3.40621)
-
 [node name="env" type="Node3D" parent="."]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="env"]
@@ -437,3 +454,6 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="env"]
 environment = SubResource("Environment_hhscg")
+
+[node name="w_flashlight" parent="." instance=ExtResource("5_hepui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1493, 4.76837e-07, -4.81453)

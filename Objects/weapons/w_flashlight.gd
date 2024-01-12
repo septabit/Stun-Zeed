@@ -9,6 +9,7 @@ var isPowered = false
 var isHeld = false
 var itemOwner = null
 var itemSlot = null
+var itemSlotPOS = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -20,16 +21,18 @@ func _physics_process(delta):
 
 func updatePOS():
 	if itemOwner != null:
-		$self.position = itemOwner.weaponPOS
-		
+		position = itemSlotPOS.global_position
+		basis = itemSlotPOS.global_basis
 
-func updateOwnership(player):
+func updateOwnership(player, weaponPOSNode):
 	itemOwner = player
+	itemSlotPOS = weaponPOSNode
 	isHeld = true
 
 func removeOwnership(player):
 	itemOwner = null
 	isHeld = false
+	itemSlotPOS = null
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

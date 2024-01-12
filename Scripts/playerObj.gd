@@ -9,13 +9,9 @@ extends CharacterBody3D
 @onready var playerViewCamera = $playerView/playerCamera
 @onready var pcap = $CollisionShape #player capsule.
 @onready var headBonker = $headBonker
-@onready var floorSnapBelow = $floorSnapBelow
 @onready var weaponManager = $playerView/WeaponManager
 
-
 #Player States
-
-
 
 #Head States
 var legStates =  {
@@ -28,8 +24,6 @@ var legStates =  {
 	"torsoCAST":["torsoIDLE"],
 }
 
-
-
 enum {
 	legIDLE,
 	legRUN,
@@ -40,7 +34,6 @@ enum {
 	legCROUCHJUMP,
 }
 
-
 var playerTorsoState = "torsoIDLE"
 var playerLegState = legIDLE
 #======================================
@@ -48,9 +41,6 @@ var playerLegState = legIDLE
 #======================================
 var playerHeight = 1.5
 var playerHeightCrouch = 0.5
-
-
-
 
 #======================================
 # Movement Variables
@@ -102,14 +92,12 @@ const fovChange = 1.5
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	
+
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		playerView.rotate_y(-event.relative.x * playerSens)
 		playerViewCamera.rotate_x(-event.relative.y * playerSens)
 		playerViewCamera.rotation.x = clamp(playerViewCamera.rotation.x, deg_to_rad(-80), deg_to_rad(80))
-
-
 
 func _physics_process(delta):
 	
@@ -130,8 +118,6 @@ func _headbob(time) -> Vector3:
 	var pos = Vector3.ZERO
 	pos.y = sin(time * bobFreq) * bobAmp
 	return pos
-
-
 
 func process_input(delta):
 	# Handle jump.
@@ -163,12 +149,10 @@ func process_input(delta):
 		weaponManager.pickup_Item()
 	
 	if Input.is_action_pressed("PrimaryFire"):
-		pass
-		#primary_fire()
+		weaponManager.prim_fire()
 		
 	if Input.is_action_pressed("SecondaryFire"):
-		pass
-		#secondary_fire()
+		weaponManager.sec_fire()
 		
 	if Input.is_action_just_pressed("Drop"):
 		weaponManager.drop_Item()
@@ -182,7 +166,6 @@ func process_input(delta):
 	
 	input_dir = Input.get_vector("Left", "Right", "Forward", "Backward")
 	direction = (playerView.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-
 
 func process_movement(delta):
 	if not is_on_floor():
@@ -262,7 +245,6 @@ func process_weapons():
 		weaponManager.drop_weapon()
 		
 	#weapon pickup
-	
 
 func process_flags():
 	headBonk = false
@@ -273,17 +255,18 @@ func take_damage(damage):
 	currHP -= damage
 	if currHP <= 0:
 		die()
-		
+
 func die():
 	pass
-	
+
 func add_health(amount):
 	currHP = clamp(currHP + amount, 0, maxHP)
 
-var _cur_frame = 0
-@export var _jump_frame_grace = 5
-var _last_frame_was_on_floor = -_jump_frame_grace - 1
 
+#Jump Function
+var _cur_frame = 0
+@export var _jump_frame_grace = 50
+var _last_frame_was_on_floor = -_jump_frame_grace - 1
 func jump():
 	#Jump is now multplied by floor normal so that the jump is directly off the plane.
 	#NOTE may want to update this to occur over a period of time (longer button press = higher jump)
@@ -295,12 +278,13 @@ func jump():
 		velocity = velocity + (playerJumpVel * get_floor_normal())
 	#velocity.y = playerJumpVel
 
-#code that handles down stairs:
+#code that handles down stairs (currently sort of broken near ramps as they snap to parts of the ramp under the floor...:
 var _was_on_floor_last_frame = false
 var _snapped_to_stairs_last_frame = false
 func _snap_down_to_stairs_check():
 	var did_snap = false
-	if not is_on_floor() and velocity.y <= 0 and (_was_on_floor_last_frame or _snapped_to_stairs_last_frame) and floorSnapBelow.is_colliding():
+	$floorSnapBelow.position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height) #Move the floorSnapBelow raycast w. crouch.
+	if not is_on_floor() and velocity.y <= 0 and (_was_on_floor_last_frame or _snapped_to_stairs_last_frame) and $floorSnapBelow.is_colliding():
 		var body_test_result = PhysicsTestMotionResult3D.new()
 		var params = PhysicsTestMotionParameters3D.new()
 		var max_step_down = -0.5
@@ -310,6 +294,7 @@ func _snap_down_to_stairs_check():
 			var translate_y = body_test_result.get_travel().y
 			self.position.y += translate_y
 			apply_floor_snap()
+			print("Snap!")
 			did_snap = true
 			
 	_was_on_floor_last_frame = is_on_floor()
@@ -326,21 +311,30 @@ func _rotate_step_up_seperation_ray():
 	else:
 		_last_xz_vel = xz_vel
 	
+	
+		#This code rotates the step up detectors around the character so that you can walk up steps
+	#no matter the direction. There are three of the nodes so that it can detect walking diagonal up stairs.
 	var xz_f_ray_pos = xz_vel.normalized() * initial_seperation_ray_dist
 	$floorSeperationRayF.global_position.x = self.global_position.x + xz_f_ray_pos.x
 	$floorSeperationRayF.global_position.z = self.global_position.z + xz_f_ray_pos.z
+	$floorSeperationRayF.global_position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height)
 	
 	var xz_l_ray_pos = xz_f_ray_pos.rotated(Vector3(0,1.0,0), deg_to_rad(-50))
 	$floorSeperationRayL.global_position.x = self.global_position.x + xz_l_ray_pos.x
 	$floorSeperationRayL.global_position.z = self.global_position.z + xz_l_ray_pos.z
+	$floorSeperationRayL.global_position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height)
 	
 	var xz_r_ray_pos = xz_f_ray_pos.rotated(Vector3(0,1.0,0), deg_to_rad(50))
 	$floorSeperationRayR.global_position.x = self.global_position.x + xz_r_ray_pos.x
 	$floorSeperationRayR.global_position.z = self.global_position.z + xz_r_ray_pos.z
+	$floorSeperationRayR.global_position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height)
+	
 	
 	$floorSeperationRayF/RayCast3D.force_raycast_update()
 	$floorSeperationRayR/RayCast3D.force_raycast_update()
 	$floorSeperationRayL/RayCast3D.force_raycast_update()
+	
+	#This code determines whether the slope is too steep.
 	var max_slope_ang_dot = Vector3(0, 1, 0).rotated(Vector3(1.0, 0, 0), self.floor_max_angle).dot(Vector3(0,1,0))
 	var any_too_steep = false
 	if $floorSeperationRayF/RayCast3D.is_colliding() and $floorSeperationRayF/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
@@ -350,8 +344,16 @@ func _rotate_step_up_seperation_ray():
 	if $floorSeperationRayR/RayCast3D.is_colliding() and $floorSeperationRayR/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
 		any_too_steep = true
 	
+	print("focal dot is: " + str($floorSeperationRayF/RayCast3D.get_collision_normal().dot(Vector3(0,1,0))))
+	
+	if !is_on_floor():
+		any_too_steep = 1
+		
+	
+	#This stops any of the step up/step down if the slope is too steep.
 	$floorSeperationRayF.disabled = any_too_steep
 	$floorSeperationRayL.disabled = any_too_steep
 	$floorSeperationRayR.disabled = any_too_steep
-	
+
+	$floorSnapBelow.enabled = !any_too_steep
 	
