@@ -63,8 +63,9 @@ func pickup_Item():
 	
 func drop_Item():
 	#Removes the ownership on the item, then removes the item from inventory.
-	WeaponSlots[WeaponSlotsIndex[currWeaponSlot]].removeOwnership($self)
-	WeaponSlots[WeaponSlotsIndex[currWeaponSlot]] = null
+	if WeaponSlots[WeaponSlotsIndex[currWeaponSlot]] != null:
+		WeaponSlots[WeaponSlotsIndex[currWeaponSlot]].removeOwnership($self)
+		WeaponSlots[WeaponSlotsIndex[currWeaponSlot]] = null
 
 
 func prim_fire():

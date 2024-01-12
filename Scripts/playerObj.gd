@@ -207,9 +207,12 @@ func process_movement(delta):
 	#======================================
 	# STAIRS AND MOVE AND SLIDE!!!
 	#======================================
-	_rotate_step_up_seperation_ray()
+	#_rotate_step_up_seperation_ray()
+	$floorSeperationRayF.disabled = 1
+	$floorSeperationRayL.disabled = 1
+	$floorSeperationRayR.disabled = 1
 	move_and_slide()
-	_snap_down_to_stairs_check()
+	#_snap_down_to_stairs_check()
 
 func process_weapons():
 	
