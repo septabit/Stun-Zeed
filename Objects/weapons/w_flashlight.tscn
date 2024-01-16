@@ -60,9 +60,9 @@ mesh = SubResource("ArrayMesh_gtvos")
 skeleton = NodePath("")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.142163)
-spot_range = 5.97126
-spot_angle = 8.29263
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.522249)
+spot_range = 113.017
+spot_angle = 37.38
 
 [node name="collisionBox" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.05176e-05, -0.011982)

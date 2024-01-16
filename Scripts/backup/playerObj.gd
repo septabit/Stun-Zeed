@@ -7,7 +7,7 @@ extends CharacterBody3D
 #======================================
 @onready var playerView = $playerView
 @onready var playerViewCamera = $playerView/playerCamera
-@onready var pcap = $StandCol #player capsule.
+@onready var pcap = $CollisionShape #player capsule.
 @onready var headBonker = $headBonker
 @onready var weaponManager = $playerView/WeaponManager
 
@@ -56,12 +56,6 @@ var isPlayerSprint = false
 var isPlayerCrouch = false
 var headBonk = false #this checks if you can uncrouch 
 var gravity = 9.8
-
-# Coyote Physics Specific stuff.
-var coyote_physics = true
-var isPlayerGrounded = true #this is the grounded variable for coyote physics
-var isPlayerGroundedLeeway = 1
-var isPlayerGroundedLeewayCount = 0
 
 var playerCrouchSpeed = 5 #This is the SPEED TO CROUCH not the SPEED FROM CROUCHING
 #var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -128,9 +122,20 @@ func _headbob(time) -> Vector3:
 func process_input(delta):
 	# Handle jump.
 	
-	_jump()
+	jump()
 	
-	crouch(delta)
+	
+	
+	if Input.is_action_pressed("Crouch"):
+		playerSpeed = playerRun * playerCrouchSpeedMult
+		isPlayerCrouch = true
+		pcap.shape.height -= playerCrouchSpeed * delta
+	elif not headBonk:
+		playerSpeed = playerRun
+		isPlayerCrouch = false
+		pcap.shape.height += playerCrouchSpeed * delta
+		
+	pcap.shape.height = clamp(pcap.shape.height, playerHeightCrouch, playerHeight)
 	
 	if isPlayerCrouch != true:
 		if Input.is_action_pressed("Sprint") and is_on_floor():
@@ -161,7 +166,6 @@ func process_input(delta):
 	
 	input_dir = Input.get_vector("Left", "Right", "Forward", "Backward")
 	direction = (playerView.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	
 
 func process_movement(delta):
 	if not is_on_floor():
@@ -203,10 +207,12 @@ func process_movement(delta):
 	#======================================
 	# STAIRS AND MOVE AND SLIDE!!!
 	#======================================
-
-	_stepup()
-	wallslidefix()
+	#_rotate_step_up_seperation_ray()
+	$floorSeperationRayF.disabled = 1
+	$floorSeperationRayL.disabled = 1
+	$floorSeperationRayR.disabled = 1
 	move_and_slide()
+	#_snap_down_to_stairs_check()
 
 func process_weapons():
 	
@@ -247,22 +253,6 @@ func process_flags():
 	headBonk = false
 	if headBonker.is_colliding():
 		headBonk = true
-		
-		
-	if coyote_physics == true:
-		if !is_on_floor():
-			isPlayerGroundedLeewayCount += 1
-			if isPlayerGroundedLeewayCount >= isPlayerGroundedLeeway:
-				isPlayerGrounded = false
-		else:
-			isPlayerGroundedLeewayCount = 0
-			isPlayerGrounded = true
-			
-		print(isPlayerGrounded)
-		print(is_on_floor())
-		print(isPlayerGroundedLeewayCount)
-	else:
-		isPlayerGrounded = is_on_floor()
 
 func take_damage(damage):
 	currHP -= damage
@@ -275,57 +265,98 @@ func die():
 func add_health(amount):
 	currHP = clamp(currHP + amount, 0, maxHP)
 
-func crouch(delta):
-	if Input.is_action_pressed("Crouch"):
-		playerSpeed = playerRun * playerCrouchSpeedMult
-		isPlayerCrouch = true
-		pcap.shape.height -= playerCrouchSpeed * delta
-	elif not headBonk:
-		playerSpeed = playerRun
-		isPlayerCrouch = false
-		pcap.shape.height += playerCrouchSpeed * delta
-		
-	pcap.shape.height = clamp(pcap.shape.height, playerHeightCrouch, playerHeight)
 
 #Jump Function
 var _cur_frame = 0
 @export var _jump_frame_grace = 50
 var _last_frame_was_on_floor = -_jump_frame_grace - 1
-func _jump():
+func jump():
 	#Jump is now multplied by floor normal so that the jump is directly off the plane.
 	#NOTE may want to update this to occur over a period of time (longer button press = higher jump)
 	#This first part fixes jumping on planes a little bit
-	
-	if Input.is_action_just_pressed("Jump") and is_on_floor():
+	_cur_frame += 1
+	if is_on_floor():
+		_last_frame_was_on_floor = _cur_frame
+	if Input.is_action_just_pressed("Jump") and (is_on_floor() or (_cur_frame - _last_frame_was_on_floor <= _jump_frame_grace)):
 		velocity = velocity + (playerJumpVel * get_floor_normal())
 	#velocity.y = playerJumpVel
 
+#code that handles down stairs (currently sort of broken near ramps as they snap to parts of the ramp under the floor...:
+var _was_on_floor_last_frame = false
+var _snapped_to_stairs_last_frame = false
+func _snap_down_to_stairs_check():
+	var did_snap = false
+	$floorSnapBelow.position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height) #Move the floorSnapBelow raycast w. crouch.
+	if not is_on_floor() and velocity.y <= 0 and (_was_on_floor_last_frame or _snapped_to_stairs_last_frame) and $floorSnapBelow.is_colliding():
+		var body_test_result = PhysicsTestMotionResult3D.new()
+		var params = PhysicsTestMotionParameters3D.new()
+		var max_step_down = -0.5
+		params.from = self.global_transform
+		params.motion = Vector3(0,max_step_down,0)
+		if PhysicsServer3D.body_test_motion(self.get_rid(), params, body_test_result):
+			var translate_y = body_test_result.get_travel().y
+			self.position.y += translate_y
+			apply_floor_snap()
+			print("Snap!")
+			did_snap = true
+			
+	_was_on_floor_last_frame = is_on_floor()
+	_snapped_to_stairs_last_frame = did_snap
 
-var max_step_up = 0.5
-var step_up_speed = 0.1
-var colP = Vector3()
-var normP = Vector3()
-func _stepup():
+#code that handles going up stairs
+@onready var initial_seperation_ray_dist = abs($floorSeperationRayF.position.z)
+var _last_xz_vel : Vector3 = Vector3(0, 0, 0)
+func _rotate_step_up_seperation_ray():
+	var xz_vel = velocity * Vector3(1,0,1)
 	
-	#$stepupRayObj/stepUpRay.position.x = self.position.x + velocity.normalized().x * 0.5
-	#$stepupRayObj/stepUpRay.position.z = self.position.z + velocity.normalized().z * 0.5
-	#$stepupRayObj/stepUpRay.position.y = self.position.y + (playerHeight/2 - pcap.shape.height)
+	if xz_vel.length() < 0.1:
+		xz_vel = _last_xz_vel
+	else:
+		_last_xz_vel = xz_vel
 	
-	#$stepUpRay.position = Vector3(self.position.x + velocity.normalized().x * 0.5, self.position.z + velocity.normalized().z * 0.5, self.position.y + (playerHeight/2 - pcap.shape.height))
 	
-	#var max_slope_ang_dot = Vector3(0, 1, 0).rotated(Vector3(1.0, 0, 0), self.floor_max_angle).dot(Vector3(0,1,0))
-	$stepUpSeperation.disabled = true
-	if $stepUpRay.is_colliding() and velocity != Vector3(0, 0, 0) and $stepUpRay.get_collision_normal() == Vector3(0, 1, 0) and isPlayerGrounded == true:
-		print("walking up stairs...")
-		$stepUpSeperation.disabled = false
+		#This code rotates the step up detectors around the character so that you can walk up steps
+	#no matter the direction. There are three of the nodes so that it can detect walking diagonal up stairs.
+	var xz_f_ray_pos = xz_vel.normalized() * initial_seperation_ray_dist
+	$floorSeperationRayF.global_position.x = self.global_position.x + xz_f_ray_pos.x
+	$floorSeperationRayF.global_position.z = self.global_position.z + xz_f_ray_pos.z
+	$floorSeperationRayF.global_position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height)
+	
+	var xz_l_ray_pos = xz_f_ray_pos.rotated(Vector3(0,1.0,0), deg_to_rad(-50))
+	$floorSeperationRayL.global_position.x = self.global_position.x + xz_l_ray_pos.x
+	$floorSeperationRayL.global_position.z = self.global_position.z + xz_l_ray_pos.z
+	$floorSeperationRayL.global_position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height)
+	
+	var xz_r_ray_pos = xz_f_ray_pos.rotated(Vector3(0,1.0,0), deg_to_rad(50))
+	$floorSeperationRayR.global_position.x = self.global_position.x + xz_r_ray_pos.x
+	$floorSeperationRayR.global_position.z = self.global_position.z + xz_r_ray_pos.z
+	$floorSeperationRayR.global_position.y = self.global_position.y + (playerHeight/2 - pcap.shape.height)
+	
+	
+	$floorSeperationRayF/RayCast3D.force_raycast_update()
+	$floorSeperationRayR/RayCast3D.force_raycast_update()
+	$floorSeperationRayL/RayCast3D.force_raycast_update()
+	
+	#This code determines whether the slope is too steep.
+	var max_slope_ang_dot = Vector3(0, 1, 0).rotated(Vector3(1.0, 0, 0), self.floor_max_angle).dot(Vector3(0,1,0))
+	var any_too_steep = false
+	if $floorSeperationRayF/RayCast3D.is_colliding() and $floorSeperationRayF/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
+		any_too_steep = true
+	if $floorSeperationRayL/RayCast3D.is_colliding() and $floorSeperationRayL/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
+		any_too_steep = true
+	if $floorSeperationRayR/RayCast3D.is_colliding() and $floorSeperationRayR/RayCast3D.get_collision_normal().dot(Vector3(0,1,0)) < max_slope_ang_dot:
+		any_too_steep = true
+	
+	print("focal dot is: " + str($floorSeperationRayF/RayCast3D.get_collision_normal().dot(Vector3(0,1,0))))
+	
+	if !is_on_floor():
+		any_too_steep = 1
+		
+	
+	#This stops any of the step up/step down if the slope is too steep.
+	$floorSeperationRayF.disabled = any_too_steep
+	$floorSeperationRayL.disabled = any_too_steep
+	$floorSeperationRayR.disabled = any_too_steep
 
-
-# please god, in the name of all that is holy, PLEASE let me slide along walls.
-var undesiredMotion = Vector3()
-func wallslidefix():
-	if self.is_on_wall():
-		undesiredMotion = self.get_wall_normal() * (velocity.dot(self.get_wall_normal()));
-		if rad_to_deg(acos(velocity.normalized().dot(self.get_wall_normal()))) > 90:
-			velocity = velocity - undesiredMotion;
-	#if acos(velocity.normalized().dot(self.get_wall_normal())) < deg_to_rad(180):
-
+	$floorSnapBelow.enabled = !any_too_steep
+	

@@ -17,7 +17,7 @@ func _ready():
 	
 func _physics_process(delta):
 	updatePOS()
-	print(itemOwner)
+	#print(itemOwner)
 
 func updatePOS():
 	if itemOwner != null:

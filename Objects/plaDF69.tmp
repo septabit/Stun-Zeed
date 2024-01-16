@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://cvtkr1nkgg85r"]
+[gd_scene load_steps=6 format=3 uid="uid://cvtkr1nkgg85r"]
 
 [ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_mipsp"]
 [ext_resource type="Script" path="res://Scripts/entities/WeaponManager.gd" id="2_0bh3k"]
@@ -9,8 +9,6 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ys1im"]
 height = 1.0
-
-[sub_resource type="SeparationRayShape3D" id="SeparationRayShape3D_11y5h"]
 
 [node name="playerObj" type="CharacterBody3D"]
 collision_layer = 2
@@ -35,7 +33,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 [node name="playerCamera" type="Camera3D" parent="playerView"]
 
 [node name="itemGrabber" type="RayCast3D" parent="playerView/playerCamera"]
-target_position = Vector3(0, 0, -3)
+target_position = Vector3(0, 0, -5)
 collision_mask = 4
 
 [node name="weaponPOS" type="Node3D" parent="playerView/playerCamera"]
@@ -58,10 +56,7 @@ target_position = Vector3(0, 1, 0)
 offset_right = 89.0
 offset_bottom = 40.0
 
-[node name="stepUpSeperation" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -0.607031)
-shape = SubResource("SeparationRayShape3D_11y5h")
-disabled = true
+[node name="stepupRayObj" type="Node3D" parent="."]
 
-[node name="stepUpRay" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.605881)
+[node name="stepUpRay" type="RayCast3D" parent="stepupRayObj"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)

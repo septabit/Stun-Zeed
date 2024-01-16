@@ -1,0 +1,114 @@
+[gd_scene load_steps=8 format=3 uid="uid://cvtkr1nkgg85r"]
+
+[ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_mipsp"]
+[ext_resource type="Script" path="res://Scripts/entities/WeaponManager.gd" id="2_0bh3k"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vt3po"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6efsy"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ys1im"]
+height = 1.0
+
+[sub_resource type="SeparationRayShape3D" id="SeparationRayShape3D_shxy6"]
+length = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vqiyj"]
+top_radius = 0.01
+bottom_radius = 0.01
+height = 0.5
+
+[node name="playerObj" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 3
+wall_min_slide_angle = 1.33867
+script = ExtResource("1_mipsp")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("CapsuleMesh_vt3po")
+
+[node name="StandCol" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_6efsy")
+
+[node name="CrouchCol" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("CapsuleShape3D_ys1im")
+
+[node name="playerView" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+
+[node name="playerCamera" type="Camera3D" parent="playerView"]
+
+[node name="itemGrabber" type="RayCast3D" parent="playerView/playerCamera"]
+target_position = Vector3(0, 0, -5)
+collision_mask = 4
+
+[node name="weaponPOS" type="Node3D" parent="playerView/playerCamera"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.429619, -0.56384, -0.780245)
+
+[node name="playerTorsoModel" type="MeshInstance3D" parent="playerView"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="playerView/playerTorsoModel"]
+
+[node name="WeaponManager" type="Node3D" parent="playerView"]
+script = ExtResource("2_0bh3k")
+
+[node name="headBonker" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.166374, 0)
+target_position = Vector3(0, 1, 0)
+
+[node name="floorSnapBelow" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+visible = false
+target_position = Vector3(0, -0.5, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_right = 89.0
+offset_bottom = 40.0
+
+[node name="floorSeperationRayF" type="CollisionShape3D" parent="."]
+transform = Transform3D(-1.00086, -8.74983e-08, 0, -3.82467e-15, 4.37492e-08, -1.00086, 8.74983e-08, -1.00086, -4.37492e-08, 0, -0.5, -0.55)
+visible = false
+shape = SubResource("SeparationRayShape3D_shxy6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="floorSeperationRayF"]
+transform = Transform3D(0.999998, -4.92076e-22, -4.26326e-14, -4.9738e-14, -4.37113e-08, -0.999998, -4.65868e-21, 0.999998, -4.37113e-08, 0, 2.38419e-07, 0.25011)
+mesh = SubResource("CylinderMesh_vqiyj")
+
+[node name="RayCast3D" type="RayCast3D" parent="floorSeperationRayF"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+target_position = Vector3(0, -0.5, 0)
+
+[node name="floorSeperationRayL" type="CollisionShape3D" parent="."]
+transform = Transform3D(-1.00086, -8.74983e-08, 0, -3.82467e-15, 4.37492e-08, -1.00086, 8.74983e-08, -1.00086, -4.37492e-08, 0, -0.5, -0.55)
+visible = false
+shape = SubResource("SeparationRayShape3D_shxy6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="floorSeperationRayL"]
+transform = Transform3D(0.999998, -4.92076e-22, -4.26326e-14, -4.9738e-14, -4.37113e-08, -0.999998, -4.65868e-21, 0.999998, -4.37113e-08, 0, 2.38419e-07, 0.25011)
+mesh = SubResource("CylinderMesh_vqiyj")
+
+[node name="RayCast3D" type="RayCast3D" parent="floorSeperationRayL"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+target_position = Vector3(0, -0.5, 0)
+
+[node name="floorSeperationRayR" type="CollisionShape3D" parent="."]
+transform = Transform3D(-1.00086, -8.74983e-08, 0, -3.82467e-15, 4.37492e-08, -1.00086, 8.74983e-08, -1.00086, -4.37492e-08, 0, -0.5, -0.55)
+visible = false
+shape = SubResource("SeparationRayShape3D_shxy6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="floorSeperationRayR"]
+transform = Transform3D(0.999998, -4.92076e-22, -4.26326e-14, -4.9738e-14, -4.37113e-08, -0.999998, -4.65868e-21, 0.999998, -4.37113e-08, 0, 2.38419e-07, 0.25011)
+mesh = SubResource("CylinderMesh_vqiyj")
+
+[node name="RayCast3D" type="RayCast3D" parent="floorSeperationRayR"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+target_position = Vector3(0, -0.5, 0)
+
+[node name="stepupRayObj" type="Node3D" parent="."]
+
+[node name="stepUpRay" type="RayCast3D" parent="stepupRayObj"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
