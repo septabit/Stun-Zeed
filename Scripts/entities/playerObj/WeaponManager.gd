@@ -84,8 +84,3 @@ func sec_fire_stop():
 	
 func reload():
 	pass
-	
-func drop_weapon():
-	pass
-	
-	

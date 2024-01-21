@@ -1,7 +1,7 @@
 [gd_scene load_steps=15 format=3 uid="uid://0klok2exe2wf"]
 
 [ext_resource type="Script" path="res://Scripts/world.gd" id="1_xluie"]
-[ext_resource type="PackedScene" uid="uid://cvtkr1nkgg85r" path="res://Objects/player_obj.tscn" id="2_ddd3i"]
+[ext_resource type="PackedScene" uid="uid://cvtkr1nkgg85r" path="res://Objects/entities/playerObj/player_obj.tscn" id="2_ddd3i"]
 [ext_resource type="Script" path="res://Scripts/FloatingPlatform.gd" id="4_0flbw"]
 [ext_resource type="PackedScene" uid="uid://3j82goxdyfir" path="res://Objects/weapons/w_flashlight.tscn" id="5_hepui"]
 

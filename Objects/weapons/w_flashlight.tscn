@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://3j82goxdyfir"]
 
-[ext_resource type="Script" path="res://Objects/weapons/w_flashlight.gd" id="1_sx81d"]
+[ext_resource type="Script" path="res://Scripts/weapons/flashlight/w_flashlight.gd" id="1_ney3e"]
 [ext_resource type="Texture2D" uid="uid://vq0koclgj4mc" path="res://models/weapons/w_flashlight/w_flashlight_0.png" id="2_21t4h"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i5qgn"]
@@ -51,7 +51,7 @@ size = Vector3(0.309082, 0.285339, 1.34014)
 [node name="w_flashlight" type="RigidBody3D"]
 collision_layer = 4
 collision_mask = 5
-script = ExtResource("1_sx81d")
+script = ExtResource("1_ney3e")
 
 [node name="model" type="MeshInstance3D" parent="."]
 transform = Transform3D(5.24594, -0.00291448, 1.27396e-10, 0, -2.29308e-07, -5.24594, 0.00291448, 5.24594, -2.29307e-07, 0, 0, 0)
@@ -61,6 +61,7 @@ skeleton = NodePath("")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.522249)
+shadow_enabled = true
 spot_range = 113.017
 spot_angle = 37.38
 

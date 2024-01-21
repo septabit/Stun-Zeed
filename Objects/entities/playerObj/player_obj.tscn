@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://cvtkr1nkgg85r"]
 
-[ext_resource type="Script" path="res://Scripts/playerObj.gd" id="1_mipsp"]
-[ext_resource type="Script" path="res://Scripts/entities/WeaponManager.gd" id="2_0bh3k"]
+[ext_resource type="Script" path="res://Scripts/entities/playerObj/playerObj.gd" id="1_8jxdk"]
+[ext_resource type="Script" path="res://Scripts/entities/playerObj/WeaponManager.gd" id="2_7atok"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_vt3po"]
 
@@ -16,7 +16,7 @@ height = 1.0
 collision_layer = 2
 collision_mask = 3
 wall_min_slide_angle = 1.33867
-script = ExtResource("1_mipsp")
+script = ExtResource("1_8jxdk")
 
 [node name="Body" type="MeshInstance3D" parent="."]
 visible = false
@@ -28,6 +28,7 @@ shape = SubResource("CapsuleShape3D_6efsy")
 [node name="CrouchCol" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("CapsuleShape3D_ys1im")
+disabled = true
 
 [node name="playerView" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
@@ -46,7 +47,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.429619, -0.56384, -0.780245
 [node name="AnimationPlayer" type="AnimationPlayer" parent="playerView/playerTorsoModel"]
 
 [node name="WeaponManager" type="Node3D" parent="playerView"]
-script = ExtResource("2_0bh3k")
+script = ExtResource("2_7atok")
 
 [node name="headBonker" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.166374, 0)
@@ -58,10 +59,26 @@ target_position = Vector3(0, 1, 0)
 offset_right = 89.0
 offset_bottom = 40.0
 
-[node name="stepUpSeperation" type="CollisionShape3D" parent="."]
+[node name="stepUpSeperationF" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -0.607031)
 shape = SubResource("SeparationRayShape3D_11y5h")
 disabled = true
 
-[node name="stepUpRay" type="RayCast3D" parent="."]
+[node name="stepUpRayF" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.605881)
+
+[node name="stepUpSeperationL" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -0.607031)
+shape = SubResource("SeparationRayShape3D_11y5h")
+disabled = true
+
+[node name="stepUpRayL" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.605881)
+
+[node name="stepUpSeperationR" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -0.607031)
+shape = SubResource("SeparationRayShape3D_11y5h")
+disabled = true
+
+[node name="stepUpRayR" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.605881)
