@@ -21,16 +21,19 @@ func _physics_process(delta):
 	updatePOS()
 
 func updatePOS():
+	#This updates the position of the weapon so that if it's in a players 
+	#inventory, it will be attached to them.
 	if itemOwner != null:
 		position = itemSlotPOS.global_position
 		basis = itemSlotPOS.global_basis
 
 func updateOwnership(player, weaponPOSNode):
+	#Function for the weapon manager. Set it so that it's in your inventory.
 	itemOwner = player
 	itemSlotPOS = weaponPOSNode
 	isHeld = true
 
-func removeOwnership(player):
+func removeOwnership():
 	itemOwner = null
 	isHeld = false
 	itemSlotPOS = null

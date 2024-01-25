@@ -24,6 +24,4 @@ func prim_fire():
 func sec_fire():
 	isPowered = false
 
-func reload():
-	pass
 

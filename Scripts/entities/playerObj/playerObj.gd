@@ -32,6 +32,8 @@ enum {
 	legCROUCH,
 	legCROUCHWALK,
 	legCROUCHJUMP,
+	legSLIDE,
+	legSTUN
 }
 
 var playerTorsoState = "torsoIDLE"
@@ -46,34 +48,58 @@ var playerHeightCrouch = 0.5
 # Movement Variables
 #======================================
 @export_group("Movement Variables")
-@export var playerJumpVel = 7 #4.5 #Jump Velocity
+
+#Run Variables
 @export var playerRun = 5.0
-@export var playerSprintSpeedMult = 1.5 #The multiplier for sprinting
-@export var playerCrouchSpeedMult = 0.6 #The multplier for crouching
 @export var playerAcc = 10.0 #the ground acc
 @export var playerDeAcc = 10.0 #ground deacceleration
-@export var playerAirAcc = 2 #Controls the amount of air control you have. Less = more commitment to jumps.
 @export var maxSpeed = 100 #maximum possible speed due to physics and hwatnot
 var playerSpeed = playerRun #Speed of the player.
+
+#Sprint Variables
+@export var playerSprintSpeedMult = 1.5 #The multiplier for sprinting
+
+#Crouch Variables
+@export var playerCrouchSpeedMult = 0.6 #The multplier for crouching
+
+#Slide Variables
+var slideTime = 1
+var slide_timer = slideTime
+
+#Jump Variables
+var gravity = 9.8
+@export var playerJumpVel = 7 #4.5 #Jump Velocity
+@export var playerAirAcc = 1 #Controls the amount of air control you have. Less = more commitment to jumps.
+
+#State Variables
+var isPlayerStun = false
 var isPlayerSprint = false
 var isPlayerCrouch = false
+var isPlayerSliding = false
 var headBonk = false #this checks if you can uncrouch 
-var gravity = 9.8
 
-var velocityIN = Vector3(0, 0 ,0)
+
 
 # Coyote Physics Specific stuff.
 var coyote_physics = true
 var isPlayerGrounded = true #this is the grounded variable for coyote physics
-var isPlayerGroundedLeeway = 1
+var isPlayerGroundedLeeway = 0.2 #This is the timer in seconds. This is used for normal-aligned jumps.
 var isPlayerGroundedLeewayCount = 0
 
 var playerCrouchSpeed = 5 #This is the SPEED TO CROUCH not the SPEED FROM CROUCHING
 #var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 #Default Gravity set in the game.
 
+#Movement Vectors
 var input_dir = Vector2()
 var direction = Vector3()
+var velocityIN = Vector3()
+var velocityFLAT = Vector3()
+var velocityGRAV = Vector3()
+var velocityIMPULSE = Vector3()
+var velocityEXTRA = Vector3()
+var velocitySLIDE = Vector3()
+var velFScalar = 0
 
 #======================================
 # Control Variables
@@ -100,6 +126,11 @@ var tbob = 0.0
 const fovBase = 90.0
 const fovChange = 1.5
 
+#======================================
+#TEST VARIABLES
+#======================================
+var velocityREAL = Vector3()
+
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
@@ -111,8 +142,9 @@ func _unhandled_input(event):
 
 func _physics_process(delta):
 	
+	
 	#Do playerchecks
-	process_flags()
+	process_flags(delta)
 	
 	#Process Input
 	process_input(delta)
@@ -140,20 +172,31 @@ func process_input(delta):
 	#crouch function
 	crouch(delta)
 	#Set sprint flag
-	if isPlayerCrouch != true:
-		if Input.is_action_pressed("Sprint") and is_on_floor():
-			isPlayerSprint = true
-		else:
-			isPlayerSprint = false
 	
 	input_dir = Input.get_vector("Left", "Right", "Forward", "Backward")
 	direction = (playerView.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
+	if isPlayerCrouch != true:
+		if Input.is_action_pressed("Sprint") and is_on_floor():
+			isPlayerSprint = true
+		elif !Input.is_action_pressed("Sprint") and (direction.length() < 0.75):
+			isPlayerSprint = false
+	
 
 func process_state():
-	if is_on_floor:
+	if isPlayerStun:
+		playerLegState = legSTUN
+		return
+	if isPlayerSliding:
+		playerLegState = legSLIDE
+		return
+	if is_on_floor():
 		if direction:
 			if isPlayerSprint:
+				if isPlayerCrouch: #by all accounts i shouldn't
+					isPlayerSliding = true
+					velocitySLIDE = direction * playerRun * playerSprintSpeedMult
+					playerLegState = legSLIDE
 				playerLegState = legSPRINT
 				playerSpeed = playerRun * playerSprintSpeedMult
 			elif isPlayerCrouch:
@@ -163,40 +206,36 @@ func process_state():
 				playerLegState = legRUN
 				playerSpeed = playerRun
 		else:
+			
 			if isPlayerCrouch:
 				playerLegState = legCROUCH
 			else:
 				playerLegState = legIDLE
 	else:
-		playerLegState = legJUMP
-		
-	print("state is: " + str(playerLegState))
-	print("speed is: " + str(playerSpeed))
+		if isPlayerCrouch:
+			playerLegState = legCROUCHJUMP
+		else:
+			playerLegState = legJUMP
 
-var velocityFLAT = Vector3()
-var velocityGRAV = Vector3()
-var velocityIMPULSE = Vector3()
-var velocityEXTRA = Vector3()
-var velFScalar = 0
+
 func process_movement(delta):
-	if is_on_floor():
-		if direction: # This is the movement if on the ground + playerinput
-			velFScalar += playerAcc * delta
-			velFScalar = clamp(velFScalar, 0, playerSpeed)
-			velocityFLAT = lerp(velocityFLAT, direction * velFScalar, playerAcc * delta) #!!!This might need to change.
-		else: # This is the movement if on the ground w. no playerinput
-			velFScalar -= playerDeAcc * delta
-			velFScalar = clamp(velFScalar, 0, playerSpeed)
-			velocityFLAT = lerp(velocityFLAT, direction * velFScalar, playerAcc * delta)
+	print("Your currently velocity is: " + str(velocity.length()))
+	#Stun Movement
+	if isPlayerStun:
+		return
+	
+	#Sliding Movement
+	elif isPlayerSliding:
+		slide_timer -= delta
+		velocityFLAT = velocitySLIDE 
+		if slide_timer <= 0:
+			isPlayerSliding = false
+			isPlayerSprint = false
+			slide_timer = slideTime #Reset slide counter
+		
+	#Regular Movement
 	else:
-		if direction: # This is the movement if in the air + playerinput
-			velFScalar += playerAirAcc * delta
-			velFScalar = clamp(velFScalar, 0, playerSpeed)
-			velocityFLAT = lerp(velocityFLAT, direction * velFScalar, playerAirAcc * delta)
-		else: # This is the movement if in the air w. no playerinput
-			velFScalar -= playerAirAcc * delta
-			velFScalar = clamp(velFScalar, 0, playerSpeed)
-			velocityFLAT = lerp(velocityFLAT, direction * velFScalar, playerAirAcc * delta)
+		velocityFLAT = lerp(velocityFLAT, direction * playerSpeed, playerAcc * delta * float(is_on_floor()) + playerAirAcc * delta * float(!is_on_floor()))
 
 	velocity = velocityFLAT + velocityGRAV + velocityEXTRA + velocityIMPULSE
 	velocityIMPULSE = Vector3()
@@ -204,7 +243,6 @@ func process_movement(delta):
 	
 	if is_on_floor:
 		velocityEXTRA = lerp(velocityEXTRA, Vector3(), delta)
-
 	#print("FLAT: " + str(velocityFLAT) + ", GRAV: " + str(velocityGRAV) + ", IMPULSE" + str(velocityIMPULSE) + ", EXTRA: " + str(velocityEXTRA))
 	#print("Total Velocity is: " + str(velocity))
 	#print(direction)
@@ -223,9 +261,12 @@ func process_movement(delta):
 	#======================================
 	# STAIRS AND MOVE AND SLIDE!!!
 	#======================================
-	_stepup()
-	wallslidefix()
-	move_and_slide()
+	
+	velocityREAL = -position / delta
+	moveFunc()
+	velocityREAL += position / delta
+	print("velocityREAL is: " + str(velocityREAL))
+	
 	
 	if not is_on_floor():
 		velocityGRAV.y -= gravity * delta
@@ -263,23 +304,31 @@ func process_weapons():
 	if Input.is_action_just_pressed("slot_3"):
 		weaponManager.change_weapon(3)
 
-
-func process_flags():
+func process_flags(delta):
 	headBonk = false
 	if headBonker.is_colliding():
 		headBonk = true
 		
 	#This is the code for coyote physics - the movement code generally doesn't use this unless it's for the stairs.
 	if coyote_physics == true:
-		if !is_on_floor():
-			isPlayerGroundedLeewayCount += 1
+		print("is_on_floor()")
+		print(is_on_floor())
+		print("isPlayerGrounded")
+		print(isPlayerGrounded)
+		if is_on_floor() != isPlayerGrounded:
+			isPlayerGroundedLeewayCount += delta
 			if isPlayerGroundedLeewayCount >= isPlayerGroundedLeeway:
-				isPlayerGrounded = false
-		else:
-			isPlayerGroundedLeewayCount = 0
-			isPlayerGrounded = true
-	else:
-		isPlayerGrounded = is_on_floor()
+				isPlayerGrounded = is_on_floor()
+				isPlayerGroundedLeewayCount = 0
+		#if !is_on_floor():
+			#isPlayerGroundedLeewayCount += delta
+			#if isPlayerGroundedLeewayCount >= isPlayerGroundedLeeway:
+				#isPlayerGrounded = false
+		#else:
+			#isPlayerGroundedLeewayCount = 0
+			#isPlayerGrounded = true
+	#else:
+		#isPlayerGrounded = is_on_floor()
 
 func take_damage(damage):
 	currHP -= damage
@@ -293,85 +342,37 @@ func add_health(amount):
 	currHP = clamp(currHP + amount, 0, maxHP)
 
 func crouch(delta):
-	if Input.is_action_pressed("Crouch"):
+	if Input.is_action_pressed("Crouch") or isPlayerSliding:
 		playerSpeed = playerRun * playerCrouchSpeedMult
 		isPlayerCrouch = true
-		pcap.shape.height -= playerCrouchSpeed * delta
+		$StandCol.disabled = true
+		$CrouchCol.disabled = false
+		
+		$playerView.position.y = lerp($playerView.position.y, 0.6 - 1, 0.1)
+
 	elif not headBonk:
 		playerSpeed = playerRun
 		isPlayerCrouch = false
-		pcap.shape.height += playerCrouchSpeed * delta
-		
-	pcap.shape.height = clamp(pcap.shape.height, playerHeightCrouch, playerHeight)
+		$StandCol.disabled = false
+		$CrouchCol.disabled = true
+		$playerView.position.y = lerp($playerView.position.y, 0.6, 0.1)
 
 #Jump Function
-var _cur_frame = 0
-@export var _jump_frame_grace = 50
-var _last_frame_was_on_floor = -_jump_frame_grace - 1
 func _jump():
 	#Jump is now multplied by floor normal so that the jump is directly off the plane.
 	#NOTE may want to update this to occur over a period of time (longer button press = higher jump)
 	#This first part fixes jumping on planes a little bit
 	
-	if Input.is_action_just_pressed("Jump") and is_on_floor():
-		var velocityTEMP = (playerJumpVel * get_floor_normal())
-		velocityGRAV = Vector3()
-		print("vtemp = " + str(velocityTEMP))
-		velocityGRAV.y += velocityTEMP.y
-		velocityIMPULSE += velocityTEMP - Vector3(0, velocityTEMP.y, 0)
-	else:
-		pass
-
-	#velocity.y = playerJumpVel
-
-
-var max_step_up = 0.5
-var step_up_speed = 0.1
-var colP = Vector3()
-var normP = Vector3()
-
-#var initpos = $stepUpSeperation.position
-func _stepup():
-	var detectPOSF = Vector3(velocityFLAT.normalized().x * 0.6, 0, velocityFLAT.normalized().z * 0.6)
-	#focal
-	$stepUpSeperationF.position = detectPOSF
-	$stepUpSeperationF.shape.length = pcap.shape.height/2
-	$stepUpRayF.position = detectPOSF
-	$stepUpRayF.target_position.y = -pcap.shape.height/2
-	#left
-	var detectPOSL = detectPOSF.rotated(Vector3(0,1.0,0), deg_to_rad(50))
-	$stepUpSeperationL.position = detectPOSL
-	$stepUpSeperationL.shape.length = pcap.shape.height/2
-	$stepUpRayL.position = detectPOSL
-	$stepUpRayL.target_position.y = -pcap.shape.height/2
-	#right
-	var detectPOSR = detectPOSF.rotated(Vector3(0,1.0,0), deg_to_rad(-50))
-	$stepUpSeperationR.position = detectPOSR
-	$stepUpSeperationR.shape.length = pcap.shape.height/2
-	$stepUpRayR.position = detectPOSR
-	$stepUpRayR.target_position.y = -pcap.shape.height/2
 	
-	#var max_slope_ang_dot = Vector3(0, 1, 0).rotated(Vector3(1.0, 0, 0), self.floor_max_angle).dot(Vector3(0,1,0))
-	$stepUpSeperationF.disabled = true
-	$stepUpSeperationL.disabled = true
-	$stepUpSeperationR.disabled = true
-	
-	var colCheck = false
-	if $stepUpRayF.is_colliding() or $stepUpRayL.is_colliding() or $stepUpRayR.is_colliding():
-		colCheck = true
-	
-	var normCheck = false
-	if $stepUpRayF.get_collision_normal() == Vector3(0, 1, 0) or $stepUpRayL.get_collision_normal() == Vector3(0, 1, 0) or $stepUpRayR.get_collision_normal() == Vector3(0, 1, 0):
-		normCheck = true
-	
-	print("colCheck = " + str(colCheck))
-	print("normCheck = " + str(normCheck))
-	print(abs(velocityFLAT))
-	
-	if colCheck and direction != Vector3(0, 0, 0) and normCheck and isPlayerGrounded == true:
-		$stepUpSeperationF.disabled = false
-		$stepUpSeperationL.disabled = false
-		$stepUpSeperationR.disabled = false
+	if Input.is_action_just_pressed("Jump") and (is_on_floor() or isPlayerGrounded):
+		if is_on_floor() and !isPlayerGrounded:
+			var velocityTEMP = (playerJumpVel * get_floor_normal()) 
+			velocityGRAV = Vector3()
+			print("vtemp = " + str(velocityTEMP))
+			velocityGRAV.y += velocityTEMP.y + velocityREAL.y #NOTE Remove the final term if don't want slope assisting jumps
+			velocityIMPULSE += velocityTEMP - Vector3(0, velocityTEMP.y, 0)
+		else:
+			velocityGRAV.y += playerJumpVel + velocityREAL.y #NOTE Remove the final term if don't want slope assisting jumps
 
 # please god, in the name of all that is holy, PLEASE let me slide along walls.
 var undesiredMotion = Vector3()
@@ -382,3 +383,9 @@ func wallslidefix():
 			velocity = velocity - undesiredMotion;
 	#if acos(velocity.normalized().dot(self.get_wall_normal())) < deg_to_rad(180):
 
+func blink():
+	pass
+
+func moveFunc():
+	wallslidefix()
+	move_and_slide()
